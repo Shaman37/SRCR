@@ -14,14 +14,14 @@
 % utente: #IdUt, Nome, Idade, Morada -> {V,F} 
 utente(1,'Utente1',1,'primeiro').
 utente(2,'Utente2',2,'segundo').
-utente(3,'Utente3',3,'terceiro')
+utente(3,'Utente3',3,'terceiro').
 
 
-% prestador: #IdPrest, Nome, Especialidade, Instituição -> {V,F}
+% prestador: #IdPrest, Nome, Especialidade, Instituição, Cidade -> {V,F}
 
-prestador(1,'Prestador1','Especialidade1','Instituição1').
-prestador(2,'Prestador2','Especialidade2','Instituição2').
-prestador(3,'Prestador3','Especialidade3','Instituição3').
+prestador(1,'Prestador1','Especialidade1','Instituição1','Cidade1').
+prestador(2,'Prestador2','Especialidade2','Instituição2','Cidade2').
+prestador(3,'Prestador3','Especialidade3','Instituição3','Cidade3').
 
 
 % cuidado: Data, #IdUt, #IdPrest, Descrição, Custo -> {V,F}
@@ -76,9 +76,9 @@ forget(Term) :- solutions(I,+F::I,L),
 %-> Invariante Estrutural do Prestador (não permite inserção repetida) <-%
 %------------------------------------------------------------------------%
 
-+prestador(ID,N,S,I) :- (solutions(ID,prestador(ID,_,_,_),L),
-			 length(L,N),
-			 N is 1).
++prestador(ID,N,S,I,C) :- (solutions(ID,prestador(ID,_,_,_,_),L),
+				length(L,N),
+				N is 1).
 
 %----------------------------------------------------------------------%
 %-> Invariante Estrutural do Cuidado (não permite inserção repetida) <-%
@@ -93,7 +93,7 @@ forget(Term) :- solutions(I,+F::I,L),
 %- Registar utentes
 utentRegist(id,n,a,z) :- learn(utente(id,n,a,z)).
 %- Registar prestadores
-prestRegist(id,n,s,i) :- learn(prestador(id,n,s,i)).
+prestRegist(id,n,s,i) :- learn(prestador(id,n,s,i,c)).
 %- Registar cuidados
 cuidaRegist(d,uid,pid,dsc,p) :- learn(cuidado(d,uid,pid,dsc,p)).
 
@@ -103,7 +103,7 @@ utentRemove(uid) :- forget(utente(uid,_,_,_)).
 % ao remover utentes -> removemos os cuidados a ele prestados?
 
 %- Remover prestador
-prestRemove(pid) :- forget(pretador(pid,_,_,_)).
+prestRemove(pid) :- forget(prestador(pid,_,_,_,_)).
 % ao remover prestadores -> removemos os cuidados por ele prestados?
 
 %- Remover cuidado
@@ -118,3 +118,61 @@ utenteZone(Z,R) :- (solutions((X,Y,W,Z),utente(_,_,_,zn),L)).
 
 % Query 4		 
 
+% Query 5
+%- Identificar cuidados de saúde prestados por instituição/cidade/datas
+
+%- Por instituicao
+prestInst(I,R) :- solutions(ID,prestador(ID,_,_,I,_),P),
+		  cuidaPrestador(P,R).
+
+%- Por cidade
+prestCidade(C,R) :- solutions(ID,prestador(ID,_,_,_,C),P),
+		    cuidaPrestador(P,R).
+
+%- Por data
+cuidaData(D,R) :- solutions((D,IU,IP,Des,C),cuidado(D,_,_,_,_),R)		      
+
+% Query 6
+%- Identificar os utentes de um prestador/especialidade/instituição
+
+%- prestador
+utentesPrestador(P,R) :- solutions(ID,cuidado(_,ID,P,_,_,_),R)
+utentesPrestador([P],R) :- utentesPrestador(P,R)
+utentesPrestador([P|Pp],R) :- utentesPrestador(P,R),
+			      utentesPrestador(Pp,R).
+%- especialidade
+utentesEspec(E,R) :- solutions(ID,prestador(ID,_,E,_),P),
+		     utentesPrestador(P,R).
+
+%- instituicao
+utentesInst(I,R) :- solutions(ID,prestador(ID,_,_,I),P),
+		    utentesPrestador(P,R).
+
+% Query 7
+%- Identificar cuidados de saúde realizados por utente/instituição/prestador
+
+%- utente
+cuidaUtente(U,R) :- solutions((D,IU,IP,D,C),cuidado(_,U,_,_,_),R).
+
+%- instituicao
+cuidaInst(I,R) :- solutions(ID,prestador(ID,_,_,I,_),P),
+		  cuidaPrestador(P,R).
+
+%- prestador
+cuidaPrestador([P],R) :- solutions((D,IU,IP,Des,C),cuidado(_,_,P,_,_),R)
+cuidaPrestador([P|Pp],R) :- cuidaPrestador([P],R),
+		            cuidaPrestador(Pp,R).	
+
+% Query 8
+%- Determinar todas as instituições/prestadores a que um utente já recorreu
+
+%- instituicoes
+ 
+		    
+
+
+%- prestadores
+prestUtentes(U,R) :- solutions(IP,cuidado(_,U,IP,_,_),R).
+
+
+		     

@@ -11,7 +11,7 @@
 %----------- BASE DE CONHECIMENTO ------------%
 %---------------------------------------------%
 
-% utente: #IdUt, Nome, Idade, Morada -> {V,F} % 
+% utente: #IdUt, Nome, Idade, Morada -> {V,F} 
 utente(1,'Utente1',1,'primeiro').
 utente(2,'Utente2',2,'segundo').
 utente(3,'Utente3',3,'terceiro')

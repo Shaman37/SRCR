@@ -164,13 +164,11 @@ utentesInst(I,R) :- solutions(ID,prestador(ID,_,_,I,_),LP),
 		    repRemove(LU,L1),
 		    sortL(L1,L2),
 		    getInfoUT(L2,R).
-
 % Query 7
 %- Identificar cuidados de saúde realizados por utente/instituição/prestador
 
 %- utente
 cuidadosUtente(U,R) :- solutions((D,U,PID,DG,C),cuidado(D,U,PID,DG,C),R).
-
 
 %- instituicao
 instCuida(I,R) :- solutions(ID,prestador(ID,_,_,I,_),P),
@@ -181,7 +179,6 @@ cuidaPrestador([IP],R) :- solutions((D,IU,IP,DG,C),cuidado(D,IU,IP,DG,C),R).
 cuidaPrestador([IP|T],R) :- solutions((D,IU,IP,DG,C),cuidado(D,IU,IP,DG,C),L1),
 		            cuidaPrestador(T,L2),
 			    concat(L1,L2,R).    
-
 % Query 8
 %- Determinar todas as instituições/prestadores a que um utente já recorreu
 

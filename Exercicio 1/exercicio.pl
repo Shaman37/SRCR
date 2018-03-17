@@ -157,14 +157,16 @@ utentes_I(I,R) :- solutions(utente(UID,N,A,Z),(prestador(PID,_,_,I,_),cuidado(_,
 %- Identificar cuidados de saúde realizados por utente/instituição/prestador
 
 %- utente
-cuidados_UT(U,R) :- solutions(cuidado(D,U,PID,DG,C),cuidado(D,U,PID,DG,C),R).
+cuidados_UT(UID,R) :- solutions(cuidado(D,UID,PID,DG,C),cuidado(D,UID,PID,DG,C),LC),
+		      sortL(LC,R).
 
 %- instituicao
-cuidados_I(I,R) :- solutions(ID,prestador(ID,_,_,I,_),LP),
-		     cuidadosPL(LP,R).
+cuidados_I(I,R) :- solutions(cuidado(D,UID,PID,DG,C),(prestador(PID,_,_,I,_),cuidado(D,UID,PID,DG,C),LC),
+		   sortL(LC,R).
 
 %- prestador
-cuidados_P(P,R) :- solutions(cuidado(D,IU,P,DG,C),cuidado(D,IU,P,DG,C),R).
+cuidados_P(PID,R) :- solutions(cuidado(D,UID,PID,DG,C),cuidado(D,UID,PID,DG,C)),LC),
+		     sortL(LC,R).
 
 % Query 8
 %- Determinar todas as instituições/prestadores a que um utente já recorreu
@@ -172,10 +174,10 @@ cuidados_P(P,R) :- solutions(cuidado(D,IU,P,DG,C),cuidado(D,IU,P,DG,C),R).
 %- instituicoes
 instituicoes_UT(UID,R) :- solutions((I,C),(cuidado(_,UID,PID,_,_),prestador(PID,_,_,I,C)),L1),
 			     repRemove(L1,LI),
-			     sortL(L1,R).
+			     sortL(LI,R).
 
 %- prestadores
-prestadores_UT(U,R) :- solutions(prestador(ID,N,E,I,C),(cuidado(_,U,ID,_,_),prestador(ID,N,E,I,C)),L1),
+prestadores_UT(UID,R) :- solutions(prestador(PID,N,E,I,C),(cuidado(_,UID,PID,_,_),prestador(PID,N,E,I,C)),L1),
 			  repRemove(L1,LP),
 			  sortL(LP,R).
 
@@ -194,7 +196,7 @@ custoPrestador(PID,R) :- solutions(C,cuidado(_,_,PID,_,C),LC),
 
 
 % Calcular custo por Datas
-custoData(D,R) :- solutions(C,cuidado(D,_,_,_,C),LC),
+custoData(D,R) :- solutions(C,cuidado(D,_,_,_,C),L1),
 		  sumL(LC,R).
 
 %--

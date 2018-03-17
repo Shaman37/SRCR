@@ -17,19 +17,19 @@ utente(2,'Utente2',2,'segundo').
 utente(3,'Utente3',3,'terceiro').
 
 
-% prestador: #IdPrest, Nome, Especialidade, Instituição -> {V,F}
+% prestador: #IdPrest, Nome, Especialidade, Instituição, Cidade -> {V,F}
 
 prestador(1,'Prestador1','Especialidade1','Instituição1','cidade1').
-prestador(2,'Prestador2','Especialidade2','Instituição2','cidade2').
+prestador(2,'Prestador2','Especialidade1','Instituição2','cidade2').
 prestador(3,'Prestador3','Especialidade3','Instituição3','cidade3').
 
 
 % cuidado: Data, #IdUt, #IdPrest, Descrição, Custo -> {V,F}
 
-cuidado('1-1-2018',1,2,'Era rabeta',2).
-cuidado('2-2-2018',2,2,'Tinha um lego no nariz',3).
-cuidado('2-2-2018',1,1,'Pisou o lego, depois de o ter tirado do nariz',4).
 
+cuidado('1-1-2018',1,1,'Tinha um lego no nariz',3).
+cuidado('2-2-2018',1,1,'Pisou o lego, depois de o ter tirado do nariz',4).
+cuidado('2-2-2018',1,1,'Era rabeta',2).
 %------------------------------------------------------------------%
 %-> Extensão do predicado que permite a evolução do conhecimento <-%
 %------------------------------------------------------------------%
@@ -111,81 +111,91 @@ cuidaRemove(D,UID,PID,DG,P) :- forget(cuidado(D,UID,PID,DG,P)).
 
 % Query 3
 %- Identificar utentes por critérios
-utentID(ID,R) :- (solutions((ID,N,A,Z),utente(ID,N,A,Z),R)).
-utentName(N,R) :- (solutions((ID,N,A,Z),utente(ID,N,A,Z),R)).
-utentAge(A,R) :- (solutions((ID,N,A,Z),utente(ID,N,A,Z),R)).
-utentZone(Z,R) :- (solutions((ID,N,A,Z),utente(ID,N,A,Z),R)). 
+utentID(ID,R) :- (solutions(utente(ID,N,A,Z),utente(ID,N,A,Z),R)).
+utentName(N,R) :- (solutions(utente(ID,N,A,Z),utente(ID,N,A,Z),R)).
+utentAge(A,R) :- (solutions(utente(ID,N,A,Z),utente(ID,N,A,Z),R)).
+utentZone(Z,R) :- (solutions(utente(ID,N,A,Z),utente(ID,N,A,Z),R)). 
 
 % Query 4		 
+%- Identificar Instituições prestadoras de saúde
+instituicoesAtivas(R) :- solutions((I,C),(cuidado(_,_,PID,_,_),prestador(PID,_,_,I,C)),L1),
+			 repRemove(L1,LI),
+			 sortL(LI,R).
 
 % Query 5
 %- Identificar cuidados de saúde prestados por instituição/cidade/datas
 
 %- Por instituicao
-cuidaInst(I,R) :- solutions(ID,prestador(ID,_,_,I,_),P),
-		  cuidaPrestador(P,R).
+cuidadosInstituicao(I,R) :- solutions(cuidado(D,UID,PID,DG,C),(prestador(PID,_,_,I,_),cuidado(D,UID,PID,DG,C)),LC),
+		  sortL(LC,R).
 
 %- Por cidade
-cuidaCid(C,R) :- solutions(ID,prestador(ID,_,_,_,C),P),
-		 cuidaPrestador(P,R).
+cuidadosCidade(C,R) :- solutions(cuidado(D,UID,PID,DG,C),(prestador(PID,_,_,_,C),cuidado(D,UID,PID,DG,C)),LC),
+		       sortL(LC,R).
 
 %- Por data
-cuidaData(D,R) :- solutions((D,IU,IP,DG,C),cuidado(D,IU,IP,DG,C),R).		      
+cuidadosData(D,R) :- solutions((D,IU,IP,DG,C),cuidado(D,IU,IP,DG,C),R).		      
 
 % Query 6
 %- Identificar os utentes de um prestador/especialidade/instituição
 
 %- prestador
-utentesPrestador(P,R) :- solutions(ID,cuidado(_,ID,P,_,_),LP),
-			 repRemove(LP,L1),
-			 sortL(L1,L2),
-			 getInfoUT(L2,R).
-			     
-getInfoUT([U],R) :- solutions((U,N,A,Z),utente(U,N,A,Z),R).
-getInfoUT([U|T],R) :- solutions((U,N,A,Z),utente(U,N,A,Z),L1),
-		      getInfoUT(T,L2),
-		      concat(L1,L2,R).
+utentesPrestador(PID,R) :- solutions(utente(UID,N,A,Z),(cuidado(_,UID,PID,_,_),utente(UID,N,A,Z)),L1),
+			 repRemove(L1,LU),
+			 sortL(LU,R).
 
 %- especialidade
-utentesEspec(E,R) :- solutions(ID,prestador(ID,_,E,_,_),LP),
-		     getUID_PL(LP,LU),
-		     repRemove(LU,L1),
-		     sortL(L1,L2),
-		     getInfoUT(L2,R).
-
-getUID_PL([P],R) :- solutions(ID,cuidado(_,ID,P,_,_),R).
-getUID_PL([P|T],R) :- solutions(ID,cuidado(_,ID,P,_,_),L1),
-		      getUID_PL(T,L2),
-		      concat(L1,L2,R).
+utentesEspecalidade(E,R) :- solutions(utente(UID,N,A,Z),(prestador(PID,_,E,_,_),cuidado(_,UID,PID,_,_),utente(UID,N,A,Z)),L1),
+		     repRemove(L1,LU),
+		     sortL(LU,R).
 
 %- instituicao
-utentesInst(I,R) :- solutions(ID,prestador(ID,_,_,I,_),LP),
-		    getUID_PL(LP,LU),
-		    repRemove(LU,L1),
-		    sortL(L1,L2),
-		    getInfoUT(L2,R).
+utentesInstituicoes(I,R) :- solutions(utente(UID,N,A,Z),(prestador(PID,_,_,I,_),cuidado(_,UID,PID,_,_),utente(UID,N,A,Z)),L1),
+		   	    repRemove(L1,LU),
+		            sortL(LU,R).
 % Query 7
 %- Identificar cuidados de saúde realizados por utente/instituição/prestador
 
 %- utente
-cuidadosUtente(U,R) :- solutions((D,U,PID,DG,C),cuidado(D,U,PID,DG,C),R).
+cuidadosUtente(U,R) :- solutions(cuidado(D,U,PID,DG,C),cuidado(D,U,PID,DG,C),R).
 
 %- instituicao
-instCuida(I,R) :- solutions(ID,prestador(ID,_,_,I,_),P),
-		  cuidaPrestador(P,R).
+cuidadosInst(I,R) :- solutions(ID,prestador(ID,_,_,I,_),LP),
+		     cuidadosPL(LP,R).
 
 %- prestador
-cuidaPrestador([IP],R) :- solutions((D,IU,IP,DG,C),cuidado(D,IU,IP,DG,C),R).
-cuidaPrestador([IP|T],R) :- solutions((D,IU,IP,DG,C),cuidado(D,IU,IP,DG,C),L1),
-		            cuidaPrestador(T,L2),
-			    concat(L1,L2,R).    
+cuidadosPrest(P,R) :- solutions(cuidado(D,IU,P,DG,C),cuidado(D,IU,P,DG,C),R).
+
 % Query 8
 %- Determinar todas as instituições/prestadores a que um utente já recorreu
-
+		         
 %- instituicoes
+instituicoesUtente(UID,R) :- solutions((I,C),(cuidado(_,UID,PID,_,_),prestador(PID,_,_,I,C)),L1),
+			     repRemove(L1,LI),
+			     sortL(L1,R).
 
 %- prestadores
-prestUtentes(U,R) :- solutions(IP,cuidado(_,U,IP,_,_),R).
+prestadoresUtente(U,R) :- solutions(prestador(ID,N,E,I,C),(cuidado(_,U,ID,_,_),prestador(ID,N,E,I,C)),L1),
+			  repRemove(L1,LP),
+			  sortL(LP,R).
+
+% Query 9
+% Calcular custo por Utente
+custoUtente(UID,R) :- solutions(C,cuidado(_,UID,_,_,C),LC),
+		      sumL(LC,R).
+
+% Calcular custo por Especialidade 
+custoEspecialidade(E,R) :- solutions(C,(prestador(PID,_,E,_,_),cuidado(_,_,PID,_,C)),LC),
+			   sumL(LC,R).
+
+% Calcular custo por Prestador
+custoPrestador(PID,R) :- solutions(C,cuidado(_,_,PID,_,C),LC),
+			 sumL(LC,R).
+
+
+% Calcular custo por Datas
+custoData(D,R) :- solutions(C,cuidado(D,_,_,_,C),LC),
+		  sumL(LC,R).
 
 %--
 concat([],L2,L2).
@@ -204,11 +214,16 @@ elemRemove(A,[X|Y],T) :- X \== A,
                          elemRemove(A,Y,R),
 			 T = [X|R].
 
+sortL([],[]).
 sortL([X],[X]).
 sortL([H|T],R) :- sortL(T,L1),
                   ins(H,L1,R).
 
 ins(X,[],[X]).
-ins(X,[H|T],[X,H|T]) :- X =< H.
-ins(X,[H|T],[H|NT]) :- X > H,
+ins(X,[H|T],[X,H|T]) :- X @=< H.
+ins(X,[H|T],[H|NT]) :- X @> H,
                        ins(X,T,NT).
+
+sumL([],0).
+sumL([H|T],R) :- sumL(T,N),
+		     R is H+N.

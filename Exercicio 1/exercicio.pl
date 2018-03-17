@@ -21,14 +21,14 @@ utente(3,'Utente3',3,'terceiro').
 
 prestador(1,'Prestador1','Especialidade1','Instituição1','cidade1').
 prestador(2,'Prestador2','Especialidade2','Instituição2','cidade2').
-prestador(3,'Prestador3','Especialidade3','Instituição3','cidade2').
+prestador(3,'Prestador3','Especialidade3','Instituição3','cidade3').
 
 
 % cuidado: Data, #IdUt, #IdPrest, Descrição, Custo -> {V,F}
 
-cuidado('1-1-2018',1,1,'Era rabeta',2).
+cuidado('1-1-2018',1,2,'Era rabeta',2).
 cuidado('2-2-2018',2,2,'Tinha um lego no nariz',3).
-cuidado('2-2-2018',2,2,'Pisou o lego, depois de o ter tirado do nariz',4).
+cuidado('2-2-2018',1,1,'Pisou o lego, depois de o ter tirado do nariz',4).
 
 %------------------------------------------------------------------%
 %-> Extensão do predicado que permite a evolução do conhecimento <-%
@@ -136,23 +136,41 @@ cuidaData(D,R) :- solutions((D,IU,IP,DG,C),cuidado(D,IU,IP,DG,C),R).
 %- Identificar os utentes de um prestador/especialidade/instituição
 
 %- prestador
-utentesPrestador(P,R) :- solutions(ID,cuidado(_,ID,P,_,_,_),R).
-utentesPrestador([P],R) :- utentesPrestador(P,R).
-utentesPrestador([P|Pp],R) :- utentesPrestador(P,R),
-			      utentesPrestador(Pp,R).
+utentesPrestador(P,R) :- solutions(ID,cuidado(_,ID,P,_,_),LP),
+			 repRemove(LP,L1),
+			 sortL(L1,L2),
+			 getInfoUT(L2,R).
+			     
+getInfoUT([U],R) :- solutions((U,N,A,Z),utente(U,N,A,Z),R).
+getInfoUT([U|T],R) :- solutions((U,N,A,Z),utente(U,N,A,Z),L1),
+		      getInfoUT(T,L2),
+		      concat(L1,L2,R).
+
 %- especialidade
-utentesEspec(E,R) :- solutions(ID,prestador(ID,_,E,_),P),
-		     utentesPrestador(P,R).
+utentesEspec(E,R) :- solutions(ID,prestador(ID,_,E,_,_),LP),
+		     getUID_PL(LP,LU),
+		     repRemove(LU,L1),
+		     sortL(L1,L2),
+		     getInfoUT(L2,R).
+
+getUID_PL([P],R) :- solutions(ID,cuidado(_,ID,P,_,_),R).
+getUID_PL([P|T],R) :- solutions(ID,cuidado(_,ID,P,_,_),L1),
+		      getUID_PL(T,L2),
+		      concat(L1,L2,R).
 
 %- instituicao
-utentesInst(I,R) :- solutions(ID,prestador(ID,_,_,I),P),
-		    utentesPrestador(P,R).
+utentesInst(I,R) :- solutions(ID,prestador(ID,_,_,I,_),LP),
+		    getUID_PL(LP,LU),
+		    repRemove(LU,L1),
+		    sortL(L1,L2),
+		    getInfoUT(L2,R).
 
 % Query 7
 %- Identificar cuidados de saúde realizados por utente/instituição/prestador
 
 %- utente
-cuidaUtente(U,R) :- solutions((D,IU,IP,D,C),cuidado(_,U,_,_,_),R).
+cuidadosUtente(U,R) :- solutions((D,U,PID,DG,C),cuidado(D,U,PID,DG,C),R).
+
 
 %- instituicao
 instCuida(I,R) :- solutions(ID,prestador(ID,_,_,I,_),P),
@@ -160,8 +178,9 @@ instCuida(I,R) :- solutions(ID,prestador(ID,_,_,I,_),P),
 
 %- prestador
 cuidaPrestador([IP],R) :- solutions((D,IU,IP,DG,C),cuidado(D,IU,IP,DG,C),R).
-cuidaPrestador([IP|Pp],R) :- cuidaPrestador([IP],R),
-                             cuidaPrestador(Pp,R).	
+cuidaPrestador([IP|T],R) :- solutions((D,IU,IP,DG,C),cuidado(D,IU,IP,DG,C),L1),
+		            cuidaPrestador(T,L2),
+			    concat(L1,L2,R).    
 
 % Query 8
 %- Determinar todas as instituições/prestadores a que um utente já recorreu
@@ -171,4 +190,28 @@ cuidaPrestador([IP|Pp],R) :- cuidaPrestador([IP],R),
 %- prestadores
 prestUtentes(U,R) :- solutions(IP,cuidado(_,U,IP,_,_),R).
 
+%--
+concat([],L2,L2).
+concat(L1,[],L1).
+concat([X|L1],L2,[X|L]) :- concat(L1,L2,L).
 
+%--
+repRemove([],[]).
+repRemove([X|A],R) :- elemRemove(X,A,L),
+                      repRemove(L,T),
+                      R = [X|T].
+
+elemRemove(A,[],[]).
+elemRemove(A,[A|Y],T) :- elemRemove(A,Y,T).
+elemRemove(A,[X|Y],T) :- X \== A,
+                         elemRemove(A,Y,R),
+			 T = [X|R].
+
+sortL([X],[X]).
+sortL([H|T],R) :- sortL(T,L1),
+                  ins(H,L1,R).
+
+ins(X,[],[X]).
+ins(X,[H|T],[X,H|T]) :- X =< H.
+ins(X,[H|T],[H|NT]) :- X > H,
+                       ins(X,T,NT).

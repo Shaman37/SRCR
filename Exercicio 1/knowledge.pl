@@ -10,7 +10,7 @@ utente(3,'Carolina',34,'AB','Rua das Victorias','Guimaraes','913122199').
 utente(4,'Carlos',53,'A','Rua da Fabrica','Braga','253433582').
 utente(5,'Julio',21,'A','Rua da Ramada','Guimaraes','253987654').
 utente(6,'Dinis',42,'B','Av.da Boavista','Porto','912090133').
-utente(7,'Fernando',_4430,'9','Rua do Pinheiro','Ponte de Lima','966668569').
+utente(7,'Fernando',9,'B','Rua do Pinheiro','Ponte de Lima','966668569').
 utente(8,'Rute',22,'B','Av. da Liberdade','Braga','916386423').
 utente(9,'Raul',31,'O','Rua das Flores','Porto','935731290').
 utente(10,'Joao',27,'AB','Largo de Camoes','Ponte de Lima','289347681').

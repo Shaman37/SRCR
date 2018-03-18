@@ -56,14 +56,14 @@ solutions(X,Y,Z) :- findall(X,Y,Z).
 %-> Invariante Estrutural do Utente (não permite inserção repetida) <-%
 %---------------------------------------------------------------------%
 
-+utente(ID,N,A,S,RUA,CDD,TEL) :: (solutions(ID,(utente(ID,N,A,S,RUA,CDD,TEL)),L),
-		      len(L,C),
-		      C == 1).
++utente(ID,N,A,S,RUA,CDD,TEL) :: (solutions(ID,(utente(ID,_,_,_,_,_,_)),L),
+		                  len(L,C),
+		                  C == 1).
 
 
-+utente(ID,N,A,S,RUA,CDD,TEL) :: (solutions(TEL,(utente(ID,N,A,S,RUA,CDD,TEL)),L),
-		      len(L,C),
-		      C == 1).
++utente(ID,N,A,S,RUA,CDD,TEL) :: (solutions(TEL,(utente(_,_,_,_,_,_,TEL)),L),
+		                 len(L,C),
+		                 C == 1).
 
 +utente(ID,N,A,S,RUA,CDD,TEL) :: (sangue(S,_)).
 
@@ -71,9 +71,9 @@ solutions(X,Y,Z) :- findall(X,Y,Z).
 %-> Invariante Estrutural do Prestador (não permite inserção repetida) <-%
 %------------------------------------------------------------------------%
 
-+prestador(ID,N,ESP,I,CDD) :: (solutions(ID,(prestador(ID,N,ESP,I,CDD)),L),
-			 len(L,C),
-			 C == 1).
++prestador(ID,N,ESP,I,CDD) :: (solutions(ID,(prestador(ID,_,_,_,_)),L),
+			      len(L,C),
+			      C == 1).
 
 %----------------------------------------------------------------------%
 %-> Invariante Estrutural do Cuidado (não permite inserção repetida) <-%
@@ -214,28 +214,28 @@ prestadores_UT(UID,R) :- solutions(prestador(PID,N,E,I,C),(cuidado(_,UID,PID,_,_
 custoUtente(UID) :- solutions(C,cuidado(_,UID,_,_,C),LC),
 		    sumL(LC,T),
 		    write('ID do Utente: '),write(UID),nl,
-		    write('Despesa Médica: '),write(T),write('€'),nl.
+		    write('Despesa Médica: '),write(T),write("€"),nl.
                      
 
 % Calcular custo por Especialidade 
 custoEspecialidade(E) :- solutions(C,(prestador(PID,_,E,_,_),cuidado(_,_,PID,_,C)),LC),
 			   sumL(LC,T),
 		           write('Especialidade Médica: '),write(E),nl,
-		 	   write('Rendimento: '),write(T),write('€'),nl.
+		 	   write('Rendimento: '),write(T),write("€"),nl.
 
 
 % Calcular custo por Prestador
 custoPrestador(PID) :- solutions(C,cuidado(_,_,PID,_,C),LC),
 			 sumL(LC,T),
 			 write('ID do Prestador: '),write(PID),nl,
-			 write('Rendimento :'),write(T),write('€'),nl.
+			 write('Rendimento :'),write(T),write("€"),nl.
 
 
 % Calcular custo por Datas
 custoData(D) :- solutions(C,cuidado(D,_,_,_,C),LC),
 		sumL(LC,T),
 		write('Data (Ano-Mês-Dia): '),write(D),nl,
-		write('Balanço Diário): '),write(T),write('€'),nl.
+		write('Balanço Diário): '),write(T),write("€"),nl.
 
 %------------------------%
 % FUNCIONALIDADES EXTRAS %

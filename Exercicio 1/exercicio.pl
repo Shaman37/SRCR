@@ -12,6 +12,7 @@
 %---------------------------------------------%
 
 % utente: #IdUt, Nome, Idade, Morada, Contacto -> {V,F} %
+
 utente(1,'Antonio',21,'Rua de Groias','Braga','253456789').
 utente(2,'Filipa',14,'Rua do Caires','Braga','929876543').
 utente(3,'Carolina',34,'Rua das Victorias','Guimaraes','913122199').

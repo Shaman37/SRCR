@@ -1,14 +1,10 @@
 :- set_prolog_flag( discontiguous_warnings,off ).
-:- set_prolog_flag( single_var_warnings,off ).
 :- set_prolog_flag( unknown,fail ).
-:- set_prolog_flag(answer_write_options,[max_depth(0)]).
+:- set_prolog_flag( answer_write_options,[max_depth(0)] ).
 
 :- op( 900,xfy,'::' ).
-:- dynamic utente/7.
-:- dynamic prestador/5.
-:- dynamic cuidado/5.
 :- dynamic sangue/2.
-
+:- use_module(knowledge).
 %---------------------------------------------%
 %----------- BASE DE CONHECIMENTO ------------%
 %---------------------------------------------%
@@ -22,65 +18,6 @@ sangue('AB','A').
 sangue('AB','B').
 sangue('AB','O').
 sangue('O','O').
-
-
-% utente: #IdUt, Nome, Idade, Tipo de Sangue, Rua, Cidade, Contacto -> {V,F} 
-utente(1,'Antonio',21,'A','Rua de Groias','Braga','253456789').
-utente(2,'Filipa',14,'O','Rua do Caires','Braga','929876543').
-utente(3,'Carolina',34,'AB','Rua das Victorias','Guimaraes','913122199').
-utente(4,'Carlos',53,'A','Rua da Fabrica','Braga','253433582').
-utente(5,'Julio',21,'A','Rua da Ramada','Guimaraes','253987654').
-utente(6,'Dinis',42,'B','Av.da Boavista','Porto','912090133').
-utente(7,'Fernando','A',9,'Rua do Pinheiro','Ponte de Lima','966668569').
-utente(8,'Rute',22,'B','Av. da Liberdade','Braga','916386423').
-utente(9,'Raul',31,'O','Rua das Flores','Porto','935731290').
-utente(10,'Joao',27,'AB','Largo de Camoes','Ponte de Lima','289347681').
-utente(11,'Filipe',24,'B','Rua do Loureiro','Viana do Castelo','258444392').
-utente(12,'Manuel',87,'A','Rua D.Pedro V','Braga','244000045').
-utente(13,'Jaime',69,'A','Av. Norton Matos','Ponte de Lima','258768180').
-utente(14,'Rui',30,'B','Rua da Boavista','Guimaraes','966306127').
-utente(15,'Tiago',17,'AB','Alameda do Lago','Braga','926150873').
-
-
-% prestador: #IdPrest, Nome, Especialidade, Instituição, Cidade -> {V,F}
-prestador(1,'Sianna Summerley','Pediatria','Hospital de Braga','Braga').
-prestador(2,'Donica Putman','Obstreticia','Trofa Saúde Hospital','Braga').
-prestador(3,'Curran Shore','Oftomalogia','Hospital de Braga','Braga').
-prestador(4,'Shauna Goodbody','Maternidade','Hospital de Santa Maria','Porto').
-prestador(5,'Madge Crossan','Cardiologia','Trofa Saúde Hospital','Braga').
-prestador(6,'Carolyne Simonetti','Medicina Geral','Hospital de Braga','Braga').
-prestador(7,'Haily Dadge','Enfermagem','Trofa Saúde Hospital','Braga').
-prestador(8,'Althea Poynor','Ginecologia','Hospital da Luz','Guimarães').
-prestador(9,'Mayer Likely','Medicina Geral','Trofa Saúde Hospital','Braga').
-prestador(10,'Krystal Karran','Medicina Geral','Hospital de Santa Maria','Porto').
-prestador(11,'Gerrilee Cordova','Ginecologia','Hospital da Luz','Guimarães').
-prestador(12,'Marcelia Bemment','Medicina Geral','Trofa Saúde Hospital','Braga').
-prestador(13,'Darn Weeds','Psiquiatria','Hospital de Braga','Braga').
-prestador(14,'Mariam Nuschke','Ortopedia','Hospital de Santa Maria','Porto').
-prestador(15,'Virgil Spreull','Medicina Geral','Trofa Saúde Hospital','Braga').
-
-% cuidado: Data, #IdUt, #IdPrest, Descrição, Custo -> {V,F}
-
-cuidado('2018-03-02',9,14,'Dedo fraturado',75.30).
-cuidado('2017-12-28',12,15,'Intoxicação alimentar',61.23).
-cuidado('2018-03-02',9,9,'Amigdalite',43.39).
-cuidado('2018-01-12',8,14,'Perna partida',33.97).
-cuidado('2018-01-15',5,12,'Alergia de pelo',32.30).
-cuidado('2018-01-23',5,14,'Traumatismo craniano',35.76).
-cuidado('2018-01-30',8,13,'Insônia',42.00).
-cuidado('2018-03-02',2,2,'Pré-natal de risco',53.29).
-cuidado('2018-02-05',1,5,'Eletrocardiograma',24.57).
-cuidado('2018-02-14',5,12,'Análises Clinicas',45.13).
-cuidado('2018-02-19',6,12,'Exame Polmunar',71.03).
-cuidado('2018-02-22',14,6,'Vomitos',54.31).
-cuidado('2018-02-27',9,6,'Febre',58.16).
-cuidado('2018-03-02',6,10,'Ferimento no abdomen',89.71).
-cuidado('2018-03-05',10,11,'Consulta de rotina',24.94).
-cuidado('2018-03-07',9,9,'Pedras nos rins',65.59).
-cuidado('2018-03-08',8,7,'Radiografia Joelho',41.65).
-cuidado('2018-03-10',7,7,'Radiografia Perna',45.60).
-cuidado('2018-03-13',12,10,'Queimadura de segundo grau',85.79).
-cuidado('2018-03-17',9,12,'Consulta de rotina',30.29).
 
 %------------------------------------------------------------------%
 %-> Extensão do predicado que permite a evolução do conhecimento <-%
@@ -148,27 +85,36 @@ solutions(X,Y,Z) :- findall(X,Y,Z).
 
 +cuidado(D,UID,PID,DG,P) :: ((utente(UID,_,_,_,_,_,_)),(prestador(PID,_,_,_,_))).
 
-% Query 1
+%---------%
+% Query 1 %
+%---------%
+
 %- Registar utentes
 registaUtente(ID,N,A,S,RUA,CDD,TEL) :- learn(utente(ID,N,A,S,RUA,CDD,TEL)).
+
 %- Registar prestadores
 registaPrestador(ID,N,S,I,C) :- learn(prestador(ID,N,S,I,C)).
+
 %- Registar cuidados
 registaCuidado(D,UID,PID,DSC,P) :- learn(cuidado(D,UID,PID,DSC,P)).
 
-% Query 2
+%---------%
+% Query 2 %
+%---------%
+%
 %- Remover utente
 removeUtente(ID) :- forget(utente(ID,_,_,_,_,_,_)).
-% ao remover utentes -> removemos os cuidados a ele prestados?
 
 %- Remover prestador
 removePrestador(ID) :- forget(prestador(ID,_,_,_,_)).
-% ao remover prestadores -> removemos os cuidados por ele prestados?
 
 %- Remover cuidado
 removeCuidado(D,UID,PID,DG,P) :- forget(cuidado(D,UID,PID,DG,P)).
 
-% Query 3
+%---------%
+% Query 3 %
+%---------%
+
 %- Identificar utentes por critérios
 utenteID(ID,R) :- (solutions(utente(ID,N,A,S,RUA,CDD,TEL),utente(ID,N,A,S,RUA,CDD,TEL),R)).
 utenteName(N,R) :- (solutions(utente(ID,N,A,S,RUA,CDD,TEL),utente(ID,N,A,S,RUA,CDD,TEL),LU)), sortL(LU,R).
@@ -177,7 +123,10 @@ utenteRua(RUA,R) :- (solutions(utente(ID,N,A,S,RUA,CDD,TEL),utente(ID,N,A,S,RUA,
 utenteCidade(CDD,R) :- (solutions(utente(ID,N,A,S,RUA,CDD,TEL),utente(ID,N,A,S,RUA,CDD,TEL),LU)), sortL(LU,R). 
 utenteContacto(TEL,R) :- (solutions(utente(ID,N,A,S,RUA,CDD,TEL),utente(ID,N,A,S,RUA,CDD,TEL),R)). 
 
-% Query 4		 
+%---------%
+% Query 4 %
+%---------%
+		 
 %- Identificar Instituições prestadoras de saúde
 instituicoesPrestadoras(R) :- solutions((C,I),(cuidado(_,_,PID,_,_),prestador(PID,_,_,I,C)),L1),
 		              repRemove(L1,LI),
@@ -186,67 +135,81 @@ instituicoesPrestadoras(R) :- solutions((C,I),(cuidado(_,_,PID,_,_),prestador(PI
 cidadesPrestadoras(R) :- solutions(CDD,(cuidado(_,_,PID,_,_),prestador(PID,_,_,I,CDD)),L1),
 		         repRemove(L1,LI),
  		         sortL(LI,R).
-% Query 5
+%---------%
+% Query 5 %
+%---------%
+
 %- Identificar cuidados de saúde prestados por instituição/cidade/datas
 
-%- Por instituicao
+%-> Por instituicao
 cuidadosInstituicao(I,R) :- solutions(cuidado(D,UID,PID,DG,C),(prestador(PID,_,_,I,_),cuidado(D,UID,PID,DG,C)),LC),
 		  	    sortL(LC,R).
 
-%- Por cidade
+%-> Por cidade
 cuidadosCidade(CDD,R) :- solutions(cuidado(D,UID,PID,DG,C),(prestador(PID,_,_,_,CDD),cuidado(D,UID,PID,DG,C)),LC),
 		         sortL(LC,R).
 
-%- Por data
+%-> Por data
 cuidadosData(D,R) :- solutions((D,IU,IP,DG,C),cuidado(D,IU,IP,DG,C),LC),sortL(LC,R).	      
 
-% Query 6
+%---------%
+% Query 6 %
+%---------%
+
 %- Identificar os utentes de um prestador/especialidade/instituição
 
-%- prestador
+%-> prestador
 utentes_P(PID,R) :- solutions(utente(UID,N,A,S,RUA,CDD,TEL),(cuidado(_,UID,PID,_,_),utente(UID,N,A,S,RUA,CDD,TEL)),L1),
 	            repRemove(L1,LU),
 	            sortL(LU,R).
 
-%- especialidade
+%-> especialidade
 utentes_ESP(E,R) :- solutions(utente(UID,N,A,S,RUA,CDD,TEL),(prestador(PID,_,E,_,_),cuidado(_,UID,PID,_,_),utente(UID,N,A,S,RUA,CDD,TEL)),L1),
 		    repRemove(L1,LU),
 		    sortL(LU,R).
 
-%- instituicao
+%-> instituicao
 utentes_I(I,R) :- solutions(utente(UID,N,A,S,RUA,CDD,TEL),(prestador(PID,_,_,I,_),cuidado(_,UID,PID,_,_),utente(UID,N,A,S,RUA,CDD,TEL)),L1),
 		  repRemove(L1,LU),
 		  sortL(LU,R).
 
-% Query 7
+%---------%
+% Query 7 %
+%---------%
+
 %- Identificar cuidados de saúde realizados por utente/instituição/prestador
 
-%- utente
+%-> utente
 cuidados_UT(UID,R) :- solutions(cuidado(D,UID,PID,DG,C),cuidado(D,UID,PID,DG,C),LC),
 		      sortL(LC,R).
 
-%- instituicao
+%-> instituicao
 cuidados_I(I,R) :- solutions(cuidado(D,UID,PID,DG,C),(prestador(PID,_,_,I,_),cuidado(D,UID,PID,DG,C)),LC),
 		   sortL(LC,R).
 
-%- prestador
+%-> prestador
 cuidados_P(PID,R) :- solutions(cuidado(D,UID,PID,DG,C),cuidado(D,UID,PID,DG,C),LC),
 		     sortL(LC,R).
 
-% Query 8
+%---------%
+% Query 8 %
+%---------%
+
 %- Determinar todas as instituições/prestadores a que um utente já recorreu
 		         
-%- instituicoes
+%-> instituicoes
 instituicoes_UT(UID,R) :- solutions((C,I),(cuidado(_,UID,PID,_,_),prestador(PID,_,_,I,C)),L1),
 			  repRemove(L1,LI),
 			  sortL(LI,R).
 
-%- prestadores
+%-> prestadores
 prestadores_UT(UID,R) :- solutions(prestador(PID,N,E,I,C),(cuidado(_,UID,PID,_,_),prestador(PID,N,E,I,C)),L1),
 			  repRemove(L1,LP),
 			  sortL(LP,R).
+%---------%
+% Query 9 %
+%---------%
 
-% Query 9
 % Calcular custo por Utente
 custoUtente(UID) :- solutions(C,cuidado(_,UID,_,_,C),LC),
 		    sumL(LC,T),
@@ -274,20 +237,29 @@ custoData(D) :- solutions(C,cuidado(D,_,_,_,C),LC),
 		write('Data (Ano-Mês-Dia): '),write(D),nl,
 		write('Balanço Diário): '),write(T),write('€'),nl.
 
-% EXTRAS
+%------------------------%
+% FUNCIONALIDADES EXTRAS %
+%------------------------%
 
+% EXTRA 01 - Doadores %
+
+% Doadores para o Tipo de Sangue 'S'
 doadoresTipo(S,R) :- solutions(utente(ID,N,A,D,RUA,CDD,TEL),(sangue(S,D),utente(ID,N,A,D,RUA,CDD,TEL)),LU),sortL(LU,R).
 
+% Doadores para o Tipo de Sangue 'S' de uma dada cidade 'CDD'
 doadoresCidade(S,CDD,R) :- solutions(utente(ID,N,A,D,RUA,CDD,TEL),(sangue(S,D),utente(ID,N,A,D,RUA,CDD,TEL)),LU), sortL(LU,R).
 
+% Doadores para o Tipo de Sangue 'S' de uma dada instituição 'I'
 doadoresInstituicao(S,I,R) :- solutions(utente(UID,N,A,D,RUA,CDD,TEL),
-		              (sangue(S,D),prestador(PID,_,_,I,_),cuidado(_,UID,PID,_,_),utente(UID,N,A,D,RUA,CDD,TEL)),
-			      LU), sortL(LU,R).
+		              (sangue(S,D),prestador(PID,_,_,I,_),cuidado(_,UID,PID,_,_),utente(UID,N,A,D,RUA,CDD,TEL)),LU), 
+			      sortL(LU,R).
 
-		     		     
-rendimentoEntre_UT(UID,D1,D2) :- ((utente(UID,_,_,_,_,_,_)) -> 
+% EXTRA 02 - Despesas e Rendimentos intervalados %
+
+% Despesa Médica de um Utente desde a data 'D1' até à data 'D2'
+despesaEntre_UT(UID,D1,D2) :- ((utente(UID,_,_,_,_,_,_)) -> 
 			          
-			           solutions(C,(cuidado(D,UID,PID,_,C),(D1 @=< D),(D @=< D2)),LC),
+			           solutions(C,(cuidado(D,UID,_,_,C),(D1 @=< D),(D @=< D2)),LC),
 			           sumL(LC,T),
 			   	   write('ID do Utente: '),write(UID),nl,
 		   		   write('Despesa Médica, entre '),write(D1),write(' e'),write(D2),write(': '),
@@ -295,6 +267,7 @@ rendimentoEntre_UT(UID,D1,D2) :- ((utente(UID,_,_,_,_,_,_)) ->
 
 				   write('Utente inexistente'),fail).
 
+% Rendimento de um Prestador desde a data 'D1' até à data 'D2'
 rendimentoEntre_P(PID,D1,D2) :- ((prestador(PID,_,_,_,_)) ->
 			   
        			           solutions(C,(cuidado(D,_,PID,_,C),(D1 @=< D),(D @=< D2)),LC),
@@ -305,6 +278,7 @@ rendimentoEntre_P(PID,D1,D2) :- ((prestador(PID,_,_,_,_)) ->
 
 				   write('Prestador inexistente'),fail).
 
+% Rendimento de uma Instituição desde a data 'D1' até à data 'D2'
 rendimentoEntre_I(I,D1,D2) :- ((prestador(_,_,_,I,_)) ->
 
 				   solutions(C,(prestador(PID,_,_,I,_),cuidado(D,_,PID,_,C),(D1 @=< D),(D @=< D2)),LC),
@@ -315,6 +289,7 @@ rendimentoEntre_I(I,D1,D2) :- ((prestador(_,_,_,I,_)) ->
 
 				   write('Instituição inexistente'),fail).
 
+% Rendimento de uma Especialdiade desde a data 'D1' até _à data 'D2'
 rendimentoEntre_ESP(E,D1,D2) :- ((prestador(_,_,E,_,_)) ->
 		
 				   solutions(C,(prestador(PID,_,E,_,_),cuidado(D,_,PID,_,C),(D1 @=<D),(D @=< D)),LC),
@@ -325,29 +300,84 @@ rendimentoEntre_ESP(E,D1,D2) :- ((prestador(_,_,E,_,_)) ->
 
 				   write('Especialidade inexistente'),fail).
 
+% EXTRA 03 - Guardar o estado atual do programa num ficheiro, alterando o módulo que contem a nossa base de conhecimento de utentes,
+% 	     prestadores e cuidados, sendo este novamente acedido quando o programa for corrido.
 
-%--
+% Guarda estado atual do programa no ficheiro
+save() :-  telling(OldStream), tell('knowledge.pl'),
+		       write(':- module(database,[utente/7, prestador/5, cuidado/5]).'),nl,
+		       write(':- dynamic utente/7.'),nl,
+		       write(':- dynamic prestador/5.'),nl,
+		       write(':- dynamic cuidado/5.'),nl,nl,
+
+		       write('% utente: #IdUt, Nome, Idade, Tipo de Sangue, Rua, Cidade, Contacto -> {V,F}'),nl,
+		       getUtentes(LU),
+		       utenteSave(LU),nl,
+
+		       write('% prestador: #IdPrest, Nome, Especialidade, Instituição, Cidade -> {V,F}'),nl,
+		       getPrestadores(LP),
+		       prestadorSave(LP),nl,
+
+		       write('% cuidado: Data, #IdUt, #IdPrest, Descrição, Custo -> {V,F}'),nl,
+		       getCuidados(LC),
+		       cuidadoSave(LC),nl,
+
+	               told, tell(OldStream).
+
+% Gera uma lista organizada por ID, dos Utentes atuais do programa
+getUtentes(R) :- solutions([UID,N,A,S,RUA,CDD,TEL],utente(UID,N,A,S,RUA,CDD,TEL),LU),
+		 sortL(LU,R).
+
+% Gera uma lista organizada por ID, dos Prestadores atuais do programa 
+getPrestadores(R) :- solutions([PID,N,E,I,CDD],prestador(PID,N,E,I,CDD),LP),
+	 	     sortL(LP,R).
+
+% Gera uma lista organizada por Datas, dos Cuidados atuais do programa
+getCuidados(R) :- solutions([D,UID,PID,DG,C],cuidado(D,UID,PID,DG,C),LC),
+                  sortL(LC,R).
+
+% Escreve a lista de utentes atuais (usada quando estamos a escrever num ficheiro)
+utenteSave([]).	 
+utenteSave([H|T]) :- format("utente(~w,'~w',~w,'~w','~w','~w','~w').",H),nl,
+ 		     utenteSave(T).				
+% Escreve a lista de prestadores atuais (usada quando estamos a escrever num ficheiro)
+prestadorSave([]).
+prestadorSave([H|T]) :- format("prestador(~w,'~w','~w','~w','~w').",H),nl,
+ 		        prestadorSave(T).
+
+% Escreve a lista de cuidados atuais (usada quando estamos a escrever num ficheiro)
+cuidadoSave([]).
+cuidadoSave([H|T]) :- format("cuidado('~w',~w,~w,'~w',~w).",H),nl,
+ 		      cuidadoSave(T).
+
+% AUXILIARES %
+
+% Remove repetidos de uma lista
 repRemove([],[]).
 repRemove([X|A],R) :- elemRemove(X,A,L),
                       repRemove(L,T),
                       R = [X|T].
 
+% Remove a primeira ocorrência de um elemento de uma lista
 elemRemove(A,[],[]).
 elemRemove(A,[A|Y],T) :- elemRemove(A,Y,T).
 elemRemove(A,[X|Y],T) :- X \== A,
                          elemRemove(A,Y,R),
 			 T = [X|R].
 
+% Organiza a lista do menor átomo para o maior
 sortL([],[]).
 sortL([X],[X]).
 sortL([H|T],R) :- sortL(T,L1),
                   ins(H,L1,R).
 
+% Insere na lista, do menor átomo para o maior
 ins(X,[],[X]).
 ins(X,[H|T],[X,H|T]) :- X @=< H.
 ins(X,[H|T],[H|NT]) :- X @> H,
                        ins(X,T,NT).
 
+% Soma dos elementos de uma lista
 sumL([],0).
 sumL([H|T],R) :- sumL(T,N),
-		     R is H+N.
+		 R is H+N.

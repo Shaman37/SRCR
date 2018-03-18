@@ -42,7 +42,7 @@ learn(T) :- solutions(I,+T::I,L),
 
 remove(T) :- retract(T).
 
-forget(T) :- solutions(I,+T::I,L),
+forget(T) :- solutions(I,-T::I,L),
 	     test(L),
              remove(T).
 
@@ -60,8 +60,15 @@ solutions(X,Y,Z) :- findall(X,Y,Z).
 		                  len(L,C),
 		                  C == 1).
 
+-utente(ID,N,A,S,RUA,CDD,TEL) :: (solutions(ID,(utente(ID,N,A,S,RUA,CDD,TEL)),L),
+		                  len(L,C),
+		                  C == 1).
 
 +utente(ID,N,A,S,RUA,CDD,TEL) :: (solutions(TEL,(utente(_,_,_,_,_,_,TEL)),L),
+		                 len(L,C),
+		                 C == 1).
+
+-utente(ID,N,A,S,RUA,CDD,TEL) :: (solutions(TEL,(utente(ID,N,A,S,RUA,CDD,TEL)),L),
 		                 len(L,C),
 		                 C == 1).
 
@@ -74,6 +81,11 @@ solutions(X,Y,Z) :- findall(X,Y,Z).
 +prestador(ID,N,ESP,I,CDD) :: (solutions(ID,(prestador(ID,_,_,_,_)),L),
 			      len(L,C),
 			      C == 1).
+
++prestador(ID,N,ESP,I,CDD) :: (solutions(ID,(prestador(ID,N,ESP,I,CDD)),L),
+			      len(L,C),
+			      C == 1).
+
 
 %----------------------------------------------------------------------%
 %-> Invariante Estrutural do Cuidado (não permite inserção repetida) <-%

@@ -168,12 +168,6 @@ nao(_).
 -cuidado(D,UID,PID,DG,P) :- nao(cuidado(ID,D,UID,PID,DG,P)),
 			    nao(execao(cuidado(ID,D,UID,PID,DG,P))).
 
-%-> Negação Forte <-%
-
--utente(37,'João',45,'AB','Rua do Raio','Braga','911271020').
--prestador(45,'Ana','Medicina Geral','Hospital de Braga','Braga').
--cuidado(30,'2018-04-20',12,7,'Gastroentrite',61.23).
-
 %---------------------------------------------%
 %-> Declaração de Conhecimento Imperfeito   <-%
 %---------------------------------------------%

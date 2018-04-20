@@ -436,62 +436,76 @@ learn_UT_nome(ID,Nome) :- utenteID(ID,utente(ID,X,A,S,RUA,CDD,TEL)),
 
 learn_UT_idade(ID,Idade) :- utenteID(ID,utente(ID,N,X,S,RUA,CDD,TEL)),
 			    atom(X),integer(Idade),
+			    retractall(excecao(idade,utente(ID,_,_,_,_,_,_))),
 			    replace(utente(ID,N,X,S,RUA,CDD,TEL),utente(ID,N,Idade,S,RUA,CDD,TEL)).
 
 learn_UT_sangue(ID,Sangue) :- utenteID(ID,utente(ID,N,A,X,RUA,CDD,TEL)),
 			      atom(X),nao(atom(Sangue)),
+			      retractall(excecao(sangue,utente(ID,_,_,_,_,_,_))),
 			      replace(utente(ID,N,A,X,RUA,CDD,TEL),utente(ID,N,A,Sangue,RUA,CDD,TEL)).
 
 learn_UT_rua(ID,Rua) :- utenteID(ID,utente(ID,N,A,S,X,CDD,TEL)),
 			atom(X),nao(atom(Rua)),
+			retractall(excecao(rua,utente(ID,_,_,_,_,_,_))),
 		        replace(utente(ID,N,A,S,X,CDD,TEL),utente(ID,N,A,S,Rua,CDD,TEL)).
 
 learn_UT_cidade(ID,Cidade) :- utenteID(ID,utente(ID,N,A,S,RUA,X,TEL)),
 			      atom(X),nao(atom(Cidade)),
+			      retractall(excecao(cidade,utente(ID,_,_,_,_,_,_))),
 			      replace(utente(ID,N,A,S,RUA,X,TEL),utente(ID,N,A,S,RUA,Cidade,TEL)).
 
 learn_UT_contacto(ID,Contacto) :- utenteID(ID,utente(ID,N,A,S,RUA,CDD,X)),
 			          atom(X),nao(atom(Contacto)),
+				  retractall(excecao(contacto,utente(ID,_,_,_,_,_,_))),
 			          replace(utente(ID,N,A,S,RUA,CDD,X),utente(ID,N,A,S,RUA,CDD,Contacto)).
 
 %-> PRESTADORES <-%
 
 learn_PRT_nome(ID,Nome) :- prestadorID(ID,prestador(ID,X,ESP,I,CDD)),
 			    atom(X),nao(atom(Nome)),
+			    retractall(excecao(nome,prestador(ID,_,_,_,_))),
 			    replace(prestador(ID,X,ESP,I,CDD),prestador(ID,Nome,ESP,I,CDD)).
 
 learn_PRT_especialidade(ID,Especialidade) :- prestadorID(ID,prestador(ID,N,X,I,CDD)),
 		                              atom(X),nao(atom(Especialidade)),
+					      retractall(excecao(especialidade,prestador(ID,_,_,_,_))),
 			    		      replace(prestador(ID,N,X,I,CDD),prestador(ID,N,Especialidade,I,CDD)).
 
 learn_PRT_instituicao(ID,Instituicao) :- prestadorID(ID,prestador(ID,N,ESP,X,CDD)),
 			   		  atom(X),nao(atom(Instituicao)),
+					  retractall(excecao(instituicao,prestador(ID,_,_,_,_))),
 			                  replace(prestador(ID,N,ESP,X,CDD),prestador(ID,N,ESP,Instituicao,CDD)).
 
 learn_PRT_cidade(ID,Cidade) :- prestadorID(ID,prestador(ID,N,ESP,I,X)),
 			        atom(X),nao(atom(Cidade)),
+				retractall(excecao(cidade,prestador(ID,_,_,_,_))),
 			        replace(prestador(ID,N,ESP,I,X),prestador(ID,N,ESP,I,Cidade)).
 
 %-> CUIDADOS <-%
 
 learn_CD_data(ID,Data) :- cuidadoID(ID,cuidado(ID,X,UID,PID,DG,C)),
 			   atom(X),nao(atom(Data)),
+			   retractall(excecao(data,cuidado(ID,_,_,_,_,_))),
 			   replace(cuidado(ID,X,UID,PID,DG,C),cuidado(ID,Data,UID,PID,DG,C)).
 
-learn_CD_idUT(ID,idUT) :- cuidadoID(ID,cuidado(ID,D,X,PID,DG,C)),
+learn_CD_uid(ID,idUT) :- cuidadoID(ID,cuidado(ID,D,X,PID,DG,C)),
 			   atom(X),integer(idUT),
+			   retractall(excecao(uid,cuidado(ID,_,_,_,_,_))),
 			   replace(cuidado(ID,D,X,PID,DG,C),cuidado(ID,D,idUT,PID,DG,C)).
 
-learn_CD_idPRT(ID,idPRT) :- cuidadoID(ID,cuidado(ID,D,UID,X,DG,C)),
+learn_CD_pid(ID,idPRT) :- cuidadoID(ID,cuidado(ID,D,UID,X,DG,C)),
 			   atom(X),integer(idPRT),
+			   retractall(excecao(pid,cuidado(ID,_,_,_,_,_))),
 			   replace(cuidado(ID,D,UID,X,DG,C),cuidado(ID,D,UID,idPRT,DG,C)).
 
 learn_CD_diagnostico(ID,Diagnostico) :- cuidadoID(ID,cuidado(ID,D,UID,PID,X,C)),
 			   atom(X),nao(atom(Diagnostico)),
+			   retractall(excecao(diagnostico,cuidado(ID,_,_,_,_,_))),
 			   replace(cuidado(ID,D,UID,PID,X,C),cuidado(ID,D,UID,PID,Diagnostico,C)).
 
 learn_CD_custo(ID,Custo) :- cuidadoID(ID,cuidado(ID,D,UID,PID,DG,X)),
 			   atom(X),integer(Custo),
+			   retractall(excecao(custo,cuidado(ID,_,_,_,_,_))),
 			   replace(cuidado(ID,D,UID,PID,DG,X),cuidado(ID,D,UID,PID,DG,Custo)).
 
 

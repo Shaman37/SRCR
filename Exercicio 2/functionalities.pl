@@ -38,7 +38,7 @@ utenteCidade(CDD,R) :- (solutions(utente(ID,N,A,S,RUA,CDD,TEL),utente(ID,N,A,S,R
 utenteContacto(TEL,R) :- (solutions(utente(ID,N,A,S,RUA,CDD,TEL),utente(ID,N,A,S,RUA,CDD,TEL),R)). 
 
 prestadorID(ID,R) :- (solutions(prestador(ID,N,ESP,I,CDD),prestador(ID,N,ESP,I,CDD),[R|_])).
-cuidadoID(ID,R) :- (solution(cuidado(ID,D,UID,PID,DSC,P),cuidado(ID,D,UID,PID,DSC,P),[R|_])).
+cuidadoID(ID,R) :- (solutions(cuidado(ID,D,UID,PID,DSC,P),cuidado(ID,D,UID,PID,DSC,P),[R|_])).
 
 %--------------------------------------------------------------------%
 % Identifica Instituições e Cidades prestadores de cuidados de saúde %

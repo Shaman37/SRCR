@@ -113,8 +113,8 @@ solutions(X,Y,Z) :- findall(X,Y,Z).
 			     C == 1).
 
 +cuidado(_,D,UID,PID,DG,C) :: (solutions((D,UID,PID,DG,C),(cuidado(_,D,UID,PID,DG,C)),L),
-				len(L,C),
-				C == 1).
+				len(L,K),
+				K == 1).
 
 +cuidado(ID,_,UID,PID,_,_) :: ((utente(UID,_,_,_,_,_,_)),(prestador(PID,_,_,_,_))).
 
@@ -566,14 +566,14 @@ learn_CD_diagnostico(ID,Diagnostico) :- cuidadoID(ID,cuidado(ID,D,UID,PID,X,C)),
 
 % Evolui Custo %
 learn_CD_custo(ID,Custo) :- cuidadoID(ID,cuidado(ID,D,UID,PID,DG,X)),
-			   atom(X),integer(Custo),
-			   retractall(excecao(custo,cuidado(ID,_,_,_,_,_))),
-			   replace(cuidado(ID,D,UID,PID,DG,X),cuidado(ID,D,UID,PID,DG,Custo)).
+			    atom(X),integer(Custo),
+			    retractall(excecao(custo,cuidado(ID,_,_,_,_,_))),
+			    replace(cuidado(ID,D,UID,PID,DG,X),cuidado(ID,D,UID,PID,DG,Custo)).
 
 %-----------------------------------------------%
 %-> Predicado de substituição de conhecimento <-%
 %-----------------------------------------------%
 
 % replace : Old,New -> {V,F}
-replace(Old, New) :- retract(Old), assert(New).
-replace(Old, _) :- assert(Old), !, fail.
+replace(Old, New) :- forget(Old), learn(New).
+replace(Old, _) :- forget(Old), !, fail.

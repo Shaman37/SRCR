@@ -2,7 +2,7 @@
 
 % utente: #IdUt, Nome, Idade, Tipo de Sangue, Rua, Cidade, Contacto -> {V,F,D}
 utente(1,'Antonio',21,'A','Rua de Groias','Braga','253456789').
-utente(2,'Filipa',14,'O','Rua do Caires','Braga','929876543').
+utente(2,nome_ut_02,idade_ut_02,'O','Rua do Caires','Braga','929876543').
 utente(3,'Carolina',34,'AB','Rua das Victorias','Guimaraes','913122199').
 utente(4,'Carlos',53,'A','Rua da Fabrica','Braga','253433582').
 utente(5,'Julio',21,'A','Rua da Ramada','Guimaraes','253987654').

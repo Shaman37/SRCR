@@ -6,10 +6,9 @@
 :- op( 400, yfx, '$$').
 :- op( 600, xfx, 'eq').
 :- op( 900,xfy,'::' ).
-
 :- style_check(-discontiguous).
 :- dynamic (-)/1.
-:- dynamic excecao/1.
+:- dynamic excecao/2.
 :- dynamic utente/7.
 :- dynamic prestador/5.
 :- dynamic cuidado/6.
@@ -22,19 +21,19 @@
 % TABELA DE INFERÊNCIA %
 %----------------------%
 
-equal(Verdadeiro  , &&(Verdadeiro  , Verdadeiro)).
-equal(Desconhecido, &&(Desconhecido, Verdadeiro)).
-equal(Desconhecido, &&(Verdadeiro  , Deconhecido)).
-equal(Desconhecido, &&(Desconhecido, Desconhecido)).
-equal(Falso       , &&(Falso       , _)).
-equal(Falso       , &&(_           , Falso)).
+equal(verdadeiro  , &&(verdadeiro  , verdadeiro)).
+equal(desconhecido, &&(desconhecido, verdadeiro)).
+equal(desconhecido, &&(verdadeiro  , deconhecido)).
+equal(desconhecido, &&(desconhecido, desconhecido)).
+equal(falso       , &&(falso       , _)).
+equal(falso       , &&(_           , falso)).
 
-equal(Falso       , $$(Falso       , Falso)).
-equal(Desconhecido, $$(Falso       , Desconhecido)).
-equal(Desconhecido, $$(Desconhecido, Falso)).
-equal(Desconhecido, $$(Desconhecido, Desconhecido)).
-equal(Verdadeiro  , $$(Verdadeiro  , _)).
-equal(Verdadeiro  , $$(_           , Verdadeiro)).
+equal(falso       , $$(falso       , falso)).
+equal(desconhecido, $$(falso       , desconhecido)).
+equal(desconhecido, $$(desconhecido, falso)).
+equal(desconhecido, $$(desconhecido, desconhecido)).
+equal(verdadeiro  , $$(verdadeiro  , _)).
+equal(verdadeiro  , $$(_           , verdadeiro)).
 
 %------------------------------------------------------------------%
 %-> Extensão do predicado que permite a evolução do conhecimento <-%
@@ -74,57 +73,58 @@ solutions(X,Y,Z) :- findall(X,Y,Z).
 %-> INVARIANTES [UTENTE] <-%
 %--------------------------%
 
-+utente(ID,N,A,S,RUA,CDD,TEL) :: (solutions(ID,(utente(ID,_,_,_,_,_,_)),L),
++utente(ID,_,_,_,_,_,_) :: (solutions(ID,(utente(ID,_,_,_,_,_,_)),L),
 		                  len(L,C),
 		                  C == 1).
 
-+utente(ID,N,A,S,RUA,CDD,TEL) :: (solutions(TEL,(utente(_,_,_,_,_,_,TEL)),L),
++utente(_,_,_,_,_,_,TEL) :: (solutions(TEL,(utente(_,_,_,_,_,_,TEL)),L),
 		                 len(L,C),
 				 C == 1).
 
-+utente(ID,N,A,S,RUA,CDD,TEL) :: (sangue(S,_)).
++utente(_,N,A,S,RUA,CDD,_) :: (solutions((N,A,S,RUA,CDD),(utente(_,N,A,S,RUA,CDD,_)),L),
+				 len(L,C),
+				 C == 1).
 
++utente(_,_,_,S,_,_,_) :: (sangue(S,_)).
 
--utente(ID,N,A,S,RUA,CDD,TEL) :: (solutions(ID,(utente(ID,N,A,S,RUA,CDD,TEL)),L),
-		                  len(L,C),
-		                  C == 1).
-
--utente(ID,N,A,S,RUA,CDD,TEL) :: (solutions(TEL,(utente(ID,N,A,S,RUA,CDD,TEL)),L),
-		                 len(L,C),
-		                 C == 1).
+-utente(ID,_,_,_,_,_,_) :: (solutions(ID,cuidado(_,_,ID,_,_,_),[])).
 
 %-----------------------------%
 %-> INVARIANTES [PRESTADOR] <-%
 %-----------------------------%
 
-+prestador(ID,N,ESP,I,CDD) :: (solutions(ID,(prestador(ID,_,_,_,_)),L),
++prestador(ID,_,_,_,_) :: (solutions(ID,(prestador(ID,_,_,_,_)),L),
 			      len(L,C),
 			      C == 1).
-
-+prestador(ID,N,ESP,I,CDD) :: (solutions(ID,(prestador(ID,N,ESP,I,CDD)),L),
-			      len(L,C),
-			      C == 1).	
 		     
++prestador(_,N,ESP,I,CDD) :: (solutions((N,ESP,I,CDD),(prestador(_,N,ESP,I,CDD)),L),
+				len(L,C),
+				C == 1).
+
+-prestador(ID,_,_,_,_) :: (solutions(ID,cuidado(_,_,_,ID,_,_),[])).
+
 %---------------------------%
 %-> INVARIANTES [CUIDADO] <-%
 %---------------------------%
 
-+cuidado(ID,D,UID,PID,DG,P) :: (solutions((ID,D,UID,PID,DG,P),(cuidado(ID,D,UID,PID,DG,P)),L),
++cuidado(ID,_,_,_,_,_) :: (solutions(ID,(cuidado(ID,_,_,_,_,_)),L),
 			     len(L,C),
 			     C == 1).
 
-+cuidado(ID,D,UID,PID,DG,P) :: ((utente(UID,_,_,_,_,_,_)),(prestador(PID,_,_,_,_))).
++cuidado(_,D,UID,PID,DG,C) :: (solutions((D,UID,PID,DG,C),(cuidado(_,D,UID,PID,DG,C)),L),
+				len(L,C),
+				C == 1).
 
-
++cuidado(ID,_,UID,PID,_,_) :: ((utente(UID,_,_,_,_,_,_)),(prestador(PID,_,_,_,_))).
 
 %------------------------------------------------------------%
 %-> Extensão dos meta-predicados demo, demoConj e demoDisj <-%
 %------------------------------------------------------------%
 
 % demo : Q -> {V,F,D}
-demo(Questao,Verdadeiro) :- Questao.
-demo(Questao,Falso) :- -Questao,!,fail.
-demo(Questao,Desconhecido) :- nao(Questao),nao(-Questao).
+demo(Questao,verdadeiro) :- Questao.
+demo(Questao,falso) :- -Questao.
+demo(Questao,desconhecido) :- nao(Questao),nao(-Questao).
 
 % demoConj : [Q] -> {V, F, D}
 demoConj(Questoes, R) :- maplist(demo, Questoes, Rs),
@@ -150,7 +150,6 @@ or([Q|Qs], R) :- or(Qs, Rs), R eq Q $$ Rs.
 nao(Questao) :- Questao,!,fail.
 nao(_).
 
-
 %-> CONHECIMENTO IMPERFEITO <-%
 
 %--------------------------------------------%
@@ -160,84 +159,269 @@ nao(_).
 %-> Negação Por Falha <-%
 
 -utente(ID,N,A,S,RUA,CDD,TEL) :- nao(utente(ID,N,A,S,RUA,CDD,TEL)),
-				 nao(execao(utente(ID,N,A,S,RUA,CDD,TEL))).
+				 nao(excecao(nome,utente(ID,N,A,S,RUA,CDD,TEL))),
+				 nao(excecao(idade,utente(ID,N,A,S,RUA,CDD,TEL))),
+				 nao(excecao(sangue,utente(ID,N,A,S,RUA,CDD,TEL))),
+				 nao(excecao(rua,utente(ID,N,A,S,RUA,CDD,TEL))),
+				 nao(excecao(cidade,utente(ID,N,A,S,RUA,CDD,TEL))),
+				 nao(excecao(contacto,utente(ID,N,A,S,RUA,CDD,TEL))).
 
 -prestador(ID,N,ESP,I,CDD) :- nao(prestador(ID,N,ESP,I,CDD)),
-			      nao(execao(prestador(ID,N,ESP,I,CDD))).
+			      nao(excecao(nome,prestador(ID,N,ESP,I,CDD))),
+                               nao(excecao(especialidade,prestador(ID,N,ESP,I,CDD))),
+			        nao(excecao(instituicao,prestador(ID,N,ESP,I,CDD))),
+				 nao(excecao(cidade,prestador(ID,N,ESP,I,CDD))).
 
 -cuidado(D,UID,PID,DG,P) :- nao(cuidado(ID,D,UID,PID,DG,P)),
-			    nao(execao(cuidado(ID,D,UID,PID,DG,P))).
+			    nao(excecao(data,cuidado(ID,D,UID,PID,DG,P))),
+		            nao(excecao(uid,cuidado(ID,D,UID,PID,DG,P))),
+		            nao(excecao(pid,cuidado(ID,D,UID,PID,DG,P))),
+		            nao(excecao(diagnostico,cuidado(ID,D,UID,PID,DG,P))),
+			    nao(excecao(custo,cuidado(ID,D,UID,PID,DG,P))).
 
 %---------------------------------------------%
-%-> Declaração de Conhecimento Imperfeito   <-%
+%-> Declaração de Conhecimento Incerto      <-%
 %---------------------------------------------%
 
 %-> UTENTES <-%
 
-desconhecer_UT_nome(ID) :- utenteID(ID, utente(_,N,_,_,_,_,_)),atom(N),
-			   assert(excecao(utente(UID,_,A,S,RUA,CDD,TEL)) :- 
-			   utente(UID,N,A,S,RUA,CDD,TEL)).
+unaware_UT_nome(ID) :- utenteID(ID,utente(_,N,_,_,_,_,_)),atom(N),
+		       nao(excecao(nome,utente(ID,_,_,_,_,_,_))),
+		       learn(excecao(nome,utente(ID,_,A,S,RUA,CDD,TEL)) :-
+				   utente(ID,N,A,S,RUA,CDD,TEL)).
 
-desconhecer_UT_idade(ID) :- utenteID(ID, utente(_,_,A,_,_,_,_)),atom(A),
-			    assert(excecao(utente(UID,N,_,S,RUA,CDD,TEL)) :- 
-			    utente(UID,N,A,S,RUA,CDD,TEL)).
+unaware_UT_idade(ID) :- utenteID(ID,utente(_,_,A,_,_,_,_)),atom(A),
+		        nao(excecao(idade,utente(ID,_,_,_,_,_,_))),
+                        learn(excecao(idade,utente(ID,N,_,S,RUA,CDD,TEL)) :- 
+				    utente(ID,N,A,S,RUA,CDD,TEL)).
 
-desconhecer_UT_sangue(ID) :- utenteID(ID, utente(_,_,_,S,_,_,_)),atom(S),
-			     assert(excecao(utente(UID,N,A,_,RUA,CDD,TEL)) :- 
-		             utente(UID,N,A,S,RUA,CDD,TEL)).
+unaware_UT_sangue(ID) :- utenteID(ID,utente(_,_,_,S,_,_,_)),atom(S),
+		         nao(excecao(sangue,utente(ID,_,_,_,_,_,_))),
+		         learn(excecao(sangue,utente(ID,N,A,_,RUA,CDD,TEL)) :- 
+		    	         utente(ID,N,A,S,RUA,CDD,TEL)).
 
-desconhecer_UT_rua(ID) :- utenteID(ID, utente(_,_,_,_,RUA,_,_)),atom(RUA),
-			  assert(excecao(utente(UID,N,A,S,_,CDD,TEL)) :- 
-	  	          utente(UID,N,A,S,RUA,CDD,TEL)).
+unaware_UT_rua(ID) :- utenteID(ID,utente(_,_,_,_,RUA,_,_)),atom(RUA),
+	   	      nao(excecao(rua,utente(ID,_,_,_,_,_,_))),
+	              learn(excecao(rua,utente(UID,N,A,S,_,CDD,TEL)) :- 
+	  	    	      utente(ID,N,A,S,RUA,CDD,TEL)).
 			   
-desconhecer_UT_cidade(ID) :- utenteID(ID, utente(_,_,_,_,_,CDD,_)),atom(CDD),
-			     assert(excecao(utente(UID,N,A,S,RUA,_,TEL)) :- 
-		             utente(UID,N,A,S,RUA,CDD,TEL)).
+unaware_UT_cidade(ID) :- utenteID(ID,utente(_,_,_,_,_,CDD,_)),atom(CDD),
+			 nao(excecao(cidade,utente(ID,_,_,_,_,_,_))),
+			 learn(excecao(cidade,utente(ID,N,A,S,RUA,_,TEL)) :- 
+		        	     utente(ID,N,A,S,RUA,CDD,TEL)).
 
-desconhecer_UT_contacto(ID) :- utenteID(ID, utente(_,_,_,_,_,_,TEL)),atom(TEL),
-			       assert(excecao(utente(UID,_,A,S,RUA,CDD,_)) :- 
-			       utente(UID,N,A,S,RUA,CDD,TEL)).
+unaware_UT_contacto(ID) :- utenteID(ID,utente(_,_,_,_,_,_,TEL)),atom(TEL),
+			   nao(excecao(contacto,utente(ID,_,_,_,_,_,_))),
+			   learn(excecao(contacto,utente(ID,N,A,S,RUA,CDD,_)) :- 
+			   	    utente(ID,N,A,S,RUA,CDD,TEL)).
 
 %-> PRESTADORES <-%
 
-desconhecer_PRT_nome(ID) :- prestador(ID, prestador(_,N,_,_,_)),atom(N),
-			    assert(excecao(prestador(PID,_,ESP,I,CDD)) :- 
-		            prestador(PID,N,ESP,I,CDD)).
+unaware_PRT_nome(ID) :- prestador(ID, prestador(_,N,_,_,_)),atom(N),
+			nao(excecao(nome,prestador(ID,_,_,_,_))),
+			learn(excecao(nome,prestador(ID,_,ESP,I,CDD)) :- 
+		        	prestador(ID,N,ESP,I,CDD)).
 
-desconhecer_PRT_especialidade(ID) :- prestador(ID, prestador(_,_,ESP,_,_)),atom(ESP),
-			    	     assert(excecao(prestador(PID,N,_,I,CDD)) :- 
-				     prestador(PID,N,ESP,I,CDD)).
+unaware_PRT_especialidade(ID) :- prestador(ID, prestador(_,_,ESP,_,_)),atom(ESP),
+				 nao(excecao(especialidade,prestador(ID,_,_,_,_))),
+			    	 learn(excecao(especialidade,prestador(ID,N,_,I,CDD)) :- 
+				     prestador(ID,N,ESP,I,CDD)).
 
-desconhecer_PRT_instituicao(ID) :- prestador(ID, prestador(_,_,_,I,_)),atom(I),
-			           assert(excecao(prestador(PID,N,ESP,_,CDD)) :- 				 
-			           prestador(PID,N,ESP,I,CDD)).
+unaware_PRT_instituicao(ID) :- prestador(ID, prestador(_,_,_,I,_)),atom(I),
+			       nao(excecao(instituicao,prestador(ID,_,_,_,_))),
+			       learn(excecao(instituicao,prestador(ID,N,ESP,_,CDD)) :- 				 
+			           prestador(ID,N,ESP,I,CDD)).
 
-desconhecer_PRT_cidade(ID) :- prestador(ID, prestador(_,_,_,_,CDD)),atom(CDD),
-			      assert(excecao(prestador(PID,N,ESP,I,_)) :- 
-		              prestador(PID,N,ESP,I,CDD)).
+unaware_PRT_cidade(ID) :- prestador(ID, prestador(_,_,_,_,CDD)),atom(CDD),
+			  nao(excecao(cidade,prestador(ID,_,_,_,_))),
+                          learn(excecao(cidade,prestador(ID,N,ESP,I,_)) :- 
+				  prestador(ID,N,ESP,I,CDD)).
 
 %-> CUIDADOS <-%
 
-desconhecer_CD_data(ID) :- cuidado(ID, cuidado(_,D,_,_,_,_)),atom(D),
-			   assert(excecao(cuidado(CID,_,UID,PID,DG,C)) :- 
-		           cuidado(CID,D,UID,PID,DG,C)).
+unaware_CD_data(ID) :- cuidado(ID, cuidado(_,D,_,_,_,_)),atom(D),
+		       nao(excecao(data,cuidado(ID,_,_,_,_,_))),
+		       learn(excecao(data,cuidado(ID,_,UID,PID,DG,C)) :- 
+		           cuidado(ID,D,UID,PID,DG,C)).
 
-desconhecer_CD_uID(ID) :- cuidado(ID, cuidado(_,_,UID,_,_,_)),atom(UID),
-                          assert(excecao(cuidado(CID,D,_,PID,DG,C)) :- 
-	                  cuidado(CID,D,UID,PID,DG,C)).
+unaware_CD_uID(ID) :- cuidado(ID, cuidado(_,_,UID,_,_,_)),atom(UID),
+	              nao(excecao(uid,cuidado(ID,_,_,_,_,_,_))),
+                      learn(excecao(uid,cuidado(ID,D,_,PID,DG,C)) :- 
+	              	    cuidado(ID,D,UID,PID,DG,C)).
 
-desconhecer_CD_pID(ID) :- cuidado(ID, cuidado(_,_,_,PID,_,_)),atom(PID),
-                          assert(excecao(cuidado(CID,D,UID,_,DG,C)) :- 
-                          cuidado(CID,D,UID,PID,DG,C)).
+unaware_CD_pID(ID) :- cuidado(ID, cuidado(_,_,_,PID,_,_)),atom(PID),
+		      nao(excecao(pid,cuidado(ID,_,_,_,_,_))),
+                      learn(excecao(pid,cuidado(ID,D,UID,_,DG,C)) :- 
+                      	    cuidado(ID,D,UID,PID,DG,C)).
 
-desconhecer_CD_diagnostico(ID) :- cuidado(ID, cuidado(_,_,_,_,DG,_)),atom(DG),
-                                  assert(excecao(cuidado(CID,D,UID,PID,_,C)) :- 
-	                          cuidado(CID,D,UID,PID,DG,C)).
+unaware_CD_diagnostico(ID) :- cuidado(ID, cuidado(_,_,_,_,DG,_)),atom(DG),
+			      nao(excecao(diagnostico,cuidado(ID,_,_,_,_,_))),
+                              learn(excecao(diagnostico,cuidado(ID,D,UID,PID,_,C)) :- 
+	                	          cuidado(ID,D,UID,PID,DG,C)).
 
-desconhecer_CD_custo(ID) :- cuidado(ID, cuidado(_,_,_,_,_,C)),atom(C),
-                            assert(excecao(cuidado(CID,D,UID,PID,DG,_)) :- 
-	                    cuidado(CID,D,UID,PID,DG,C)).
+unaware_CD_custo(ID) :- cuidado(ID, cuidado(_,_,_,_,_,C)),atom(C),
+			nao(excecao(custo,cuidado(ID,_,_,_,_,_))),
+                        learn(excecao(custo,cuidado(ID,D,UID,PID,DG,_)) :- 
+	                	    cuidado(ID,D,UID,PID,DG,C)).
 
+%--------------------------------%
+%-> Imprecisão Conhecimento    <-%
+%--------------------------------%
+
+%-> UTENTES <-%
+
+unaware_UT_nome(_,[]).
+unaware_UT_nome(ID,[H|T]) :- utenteID(ID,utente(ID,N,A,S,RUA,CDD,TEL)),atom(N),
+			     learn(excecao(nome,utente(ID,H,A,S,RUA,CDD,TEL))),unaware_UT_nome(ID,T).
+
+unaware_UT_idade(ID,Min,Max) :- utenteID(ID,utente(ID,N,A,S,RUA,CDD,TEL)),atom(A),
+				learn(excecao(idade,utente(ID,N,Idade,S,RUA,CDD,TEL)) :- 
+					(Idade >= Min, Idade =< Max)).
+
+unaware_UT_sangue(_,[]).
+unaware_UT_sangue(ID,[H|T]) :- utenteID(ID,utente(ID,N,A,S,RUA,CDD,TEL)),atom(S),
+			       learn(excecao(sangue,utente(ID,N,A,H,RUA,CDD,TEL))),unaware_UT_sangue(ID,T).
+
+unaware_UT_rua(_,[]).
+unaware_UT_sangue(ID,[H|T]) :- utenteID(ID,utente(ID,N,A,S,RUA,CDD,TEL)),atom(RUA),
+			       learn(excecao(rua,utente(ID,N,A,S,H,CDD,TEL))),unaware_UT_rua(ID,T).
+
+unaware_UT_cidade(_,[]).
+unaware_UT_sangue(ID,[H|T]) :- utenteID(ID,utente(ID,N,A,S,RUA,CDD,TEL)),atom(CDD),
+			       learn(excecao(cidade,utente(ID,N,A,S,RUA,H,TEL))),unaware_UT_cidade(ID,T).
+
+unaware_UT_contacto(_,[]).
+unaware_UT_sangue(ID,[H|T]) :- utenteID(ID,utente(ID,N,A,S,RUA,CDD,TEL)),atom(TEL),
+			       learn(excecao(contacto,utente(ID,N,A,S,RUA,CDD,H))),unaware_UT_contacto(ID,T).
+
+
++excecao(nome,utente(ID,N,A,S,RUA,CDD,TEL)) :: (solutions(N,excecao(nome,utente(ID,N,A,S,RUA,CDD,TEL)),R),len(R,C),C == 1).
++excecao(sangue,utente(ID,N,A,S,RUA,CDD,TEL)) :: (solutions(S,excecao(sangue,utente(ID,N,A,S,RUA,CDD,TEL)),R),len(R,C),C == 1).
++excecao(rua,utente(ID,N,A,S,RUA,CDD,TEL)) :: (solutions(RUA,excecao(rua,utente(ID,N,A,S,RUA,CDD,TEL)),R),len(R,C),C == 1).
++excecao(cidade,utente(ID,N,A,S,RUA,CDD,TEL)) :: (solutions(CDD,excecao(cidade,utente(ID,N,A,S,RUA,CDD,TEL)),R),len(R,C),C == 1).
++excecao(contacto,utente(ID,N,A,S,RUA,CDD,TEL)) :: (solutions(TEL,excecao(contacto,utente(ID,N,A,S,RUA,CDD,TEL)),R),len(R,C),C == 1).
+
+%-> PRESTADORES <-%
+
+unaware_PRT_nome(_,[]).
+unaware_PRT_nome(ID,[H|T]) :- prestadorID(ID,prestador(ID,N,ESP,I,CDD)),atom(N),
+                              learn(excecao(nome,prestador(ID,H,ESP,I,CDD))),unaware_PRT_nome(ID,T).
+ 
+unaware_PRT_especialidade(_,[]).
+unaware_PRT_especialidade(ID,[H|T]) :- prestadorID(ID,prestador(ID,N,ESP,I,CDD)),atom(ESP),
+			 	       learn(excecao(especialidade,prestador(ID,N,H,I,CDD))),unaware_PRT_especialidade(ID,T).
+
+unaware_PRT_instituicao(_,[]).
+unaware_PRT_instituicao(ID,[H|T]) :- prestadorID(ID,prestador(ID,N,ESP,I,CDD)),atom(I),
+			             learn(excecao(instituicao,prestador(ID,N,ESP,H,CDD))),unaware_PRT_instituicao(ID,T).
+
+unaware_PRT_cidade(_,[]).
+unaware_PRT_cidade(ID,[H|T]) :- prestadorID(ID,prestador(ID,N,ESP,I,CDD)),atom(CDD),
+			        learn(excecao(cidade,prestador(ID,N,ESP,I,H))),unaware_PRT_cidade(ID,T).
+
+
++excecao(nome,prestador(ID,N,ESP,I,CDD)) :: (solutions(N,excecao(nome,prestador(ID,N,ESP,I,CDD)),R),len(R,C),C == 1).
++excecao(especialidade,prestador(ID,N,ESP,I,CDD)) :: (solutions(ESP,excecao(especialidade,prestador(ID,N,ESP,I,CDD)),R),len(R,C),C == 1).
++excecao(instituicao,prestador(ID,N,ESP,I,CDD)) :: (solutions(I,excecao(instituicao,prestador(ID,N,ESP,I,CDD)),R),len(R,C),C == 1).
++excecao(cidade,prestador(ID,N,ESP,I,CDD)) :: (solutions(CDD,excecao(cidade,prestador(ID,N,ESP,I,CDD)),R),len(R,C),C == 1).
+
+%-> CUIDADOS <-%
+
+unaware_CD_data(_,[]).
+unaware_CD_data(ID,[H|T]) :- cuidadoID(ID,cuidado(ID,D,UID,PID,DG,C)),
+			     atom(D),atom(H),
+			     learn(excecao(data,cuidado(ID,H,UID,PID,DG,C))),unaware_CD_data(ID,T).
+		   
+unaware_CD_uid(ID,Min,Max) :- cuidadoID(ID,cuidado(ID,D,UID,PID,DG,C)),
+			      atom(UID),integer(Min),integer(Max),
+			      learn(excecao(uid,cuidado(ID,D,Uid,PID,DG,C)) :- Uid >= Min, Uid =< Max).
+
+unaware_CD_pid(ID,Min,Max) :- cuidadoID(ID,cuidado(ID,D,UID,PID,DG,C)),
+			      atom(PID),integer(Min),integer(Max),
+			      learn(excecao(pid,cuidado(ID,H,Pid,PID,DG,C)) :- Pid >= Min, Pid =< Max).
+
+unaware_CD_diagnostico(_,[]).
+unaware_CD_diagnostico(ID,[H|T]) :- cuidadoID(ID,cuidado(ID,D,UID,PID,DG,C)),atom(DG),atom(H),
+			     learn(excecao(diagnostico,cuidado(ID,D,UID,PID,H,C))),unaware_CD_diagnostico(ID,T).
+
+unaware_CD_uid(ID,Min,Max) :- cuidadoID(ID,cuidado(ID,D,UID,PID,DG,C)),
+			      atom(C),integer(Min),integer(Max),
+			      learn(excecao(custo,cuidado(ID,D,Uid,PID,DG,Custo)) :- Custo >= Min, Custo =< Max).
+
++excecao(data,cuidado(ID,D,UID,PID,DG,C)) :: (solutions(D,excecao(data,cuidado(ID,D,UID,PID,DG,C)),R),len(R,C), C == 1).
++excecao(diagnostico,cuidado(ID,D,UID,PID,DG,C)) :: (solutions(DG,excecao(diagnostico,cuidado(ID,D,UID,PID,DG,C)),R),len(R,C), C == 1).
+
+%--------------------------------%
+%-> Interdição de Conhecimento <-%
+%--------------------------------%
+
+%-> UTENTES <-%
+
+disallow_UT_nome(ID) :- utenteID(ID,utente(_,N,_,_,_,_,_)),
+			learn(nulo(N)),
+	                learn(+utente(ID,_,_,_,_,_,_) :: (solutions(Nome,(utente(ID,Nome,_,_,_,_,_),nao(nulo(Nome))),L),len(L,C),C == 0)).
+
+disallow_UT_idade(ID) :- utenteID(ID,utente(_,_,A,_,_,_,_)),
+			learn(nulo(A)),
+	                learn(+utente(ID,_,_,_,_,_,_) :: (solutions(Idade,(utente(ID,Idade,_,_,_,_,_),nao(nulo(Idade))),L),len(L,C),C == 0)).
+
+disallow_UT_sangue(ID) :- utenteID(ID,utente(_,_,_,S,_,_,_)),
+			learn(nulo(S)),
+	                learn(+utente(ID,_,_,_,_,_,_) :: (solutions(Sangue,(utente(ID,Sangue,_,_,_,_,_),nao(nulo(Sangue))),L),len(L,C),C == 0)).
+
+disallow_UT_rua(ID) :- utenteID(ID,utente(_,_,_,_,RUA,_,_)),
+			learn(nulo(RUA)),
+	                learn(+utente(ID,_,_,_,_,_,_) :: (solutions(Rua,(utente(ID,Rua,_,_,_,_,_),nao(nulo(Rua))),L),len(L,C),C == 0)).
+
+disallow_UT_cidade(ID) :- utenteID(ID,utente(_,_,_,_,_,CDD,_)),
+			learn(nulo(CDD)),
+	                learn(+utente(ID,_,_,_,_,_,_) :: (solutions(Cidade,(utente(ID,Cidade,_,_,_,_,_),nao(nulo(Cidade))),L),len(L,C),C == 0)).
+
+disallow_UT_contacto(ID) :- utenteID(ID,utente(_,_,_,_,_,_,TEL)),
+			learn(nulo(TEL)),
+	                learn(+utente(ID,_,_,_,_,_,_) :: (solutions(Contacto,(utente(ID,Contacto,_,_,_,_,_),nao(nulo(Contacto))),L),len(L,C),C == 0)).
+
++nulo(N) :: (solutions(N,nulo(N),R),len(R,C),C==1).
+
+%-> PRESTADORES <-%
+
+disallow_PRT_nome(ID) :- prestadorID(ID,prestador(_,N,_,_,_)),
+			 learn(nulo(N)),
+			 learn(+prestador(ID,_,_,_,_) :: (solutions(Nome,(prestador(ID,Nome,_,_,_),nao(nulo(Nome))),L),len(L,C),C == 0)).
+
+disallow_PRT_especialidade(ID) :- prestadorID(ID,prestador(_,_,ESP,_,_)),
+			 learn(nulo(ESP)),
+			 learn(+prestador(ID,_,_,_,_) :: (solutions(Especialidade,(prestador(ID,_,Especialidade,_,_),nao(nulo(Especialidade))),L),len(L,C),C == 0)).
+
+disallow_PRT_instituicao(ID) :- prestadorID(ID,prestador(_,_,_,I,_)),
+			 learn(nulo(I)),
+			 learn(+prestador(ID,_,_,_,_) :: (solutions(Instituicao,(prestador(ID,_,_,Instituicao,_),nao(nulo(Instituicao))),L),len(L,C),C == 0)).
+
+disallow_PRT_cidade(ID) :- prestadorID(ID,prestador(_,_,_,_,CDD)),
+			 learn(nulo(CDD)),
+			 learn(+prestador(ID,_,_,_,_) :: (solutions(Cidade,(prestador(ID,_,_,_,Cidade),nao(nulo(Cidade))),L),len(L,C),C == 0)).
+
+%-> CUIDADOS <-%
+
+disallow_CD_data(ID) :- cuidadoID(ID,cuidado(_,D,_,_,_,_)),
+			learn(nulo(D)),
+			learn(+cuidado(ID,_,_,_,_,_) :: (solutions(Data,(cuidado(ID,Data,_,_,_,_),nao(nulo(Data))),L),len(L,C),C == 0)).
+
+disallow_CD_uid(ID) :- cuidadoID(ID,cuidado(_,_,UID,_,_,_)),
+			learn(nulo(UID)),
+			learn(+cuidado(ID,_,_,_,_,_) :: (solutions(Uid,(cuidado(ID,_,Uid,_,_,_),nao(nulo(Uid))),L),len(L,C),C == 0)).
+
+disallow_CD_pid(ID) :- cuidadoID(ID,cuidado(_,_,_,PID,_,_)),
+			learn(nulo(PID)),
+			learn(+cuidado(ID,_,_,_,_,_) :: (solutions(Pid,(cuidado(ID,_,Pid,_,_,_),nao(nulo(Pid))),L),len(L,C),C == 0)).
+
+disallow_CD_diagnostico(ID) :- cuidadoID(ID,cuidado(_,_,_,_,DG,_)),
+			learn(nulo(DG)),
+			learn(+cuidado(ID,_,_,_,_,_) :: (solutions(Diagnostico,(cuidado(ID,_,_,_,Diagnostico,_),nao(nulo(Diagnostico))),L),len(L,C),C == 0)).
+
+disallow_CD_custo(ID) :- cuidadoID(ID,cuidado(_,_,_,_,_,C)),
+			learn(nulo(C)),
+			learn(+cuidado(ID,_,_,_,_,_) :: (solutions(Custo,(cuidado(ID,_,_,_,_,Custo),nao(nulo(Custo))),L),len(L,C),C == 0)).
 
 %---------------------------------------------%
 %-> Evolução de Conhecimento Imperfeito     <-%
@@ -246,11 +430,12 @@ desconhecer_CD_custo(ID) :- cuidado(ID, cuidado(_,_,_,_,_,C)),atom(C),
 %-> UTENTES <-%
 
 learn_UT_nome(ID,Nome) :- utenteID(ID,utente(ID,X,A,S,RUA,CDD,TEL)),
-			  atom(X),nao(atom(Nome)),
+			  atom(X),atom(Nome),
+			  retractall(excecao(nome,utente(ID,_,_,_,_,_,_))),
 			  replace(utente(ID,X,A,S,RUA,CDD,TEL),utente(ID,Nome,A,S,RUA,CDD,TEL)).
 
 learn_UT_idade(ID,Idade) :- utenteID(ID,utente(ID,N,X,S,RUA,CDD,TEL)),
-			    atom(X),nao(atom(Idade)),
+			    atom(X),integer(Idade),
 			    replace(utente(ID,N,X,S,RUA,CDD,TEL),utente(ID,N,Idade,S,RUA,CDD,TEL)).
 
 learn_UT_sangue(ID,Sangue) :- utenteID(ID,utente(ID,N,A,X,RUA,CDD,TEL)),
@@ -294,19 +479,26 @@ learn_CD_data(ID,Data) :- cuidadoID(ID,cuidado(ID,X,UID,PID,DG,C)),
 			   replace(cuidado(ID,X,UID,PID,DG,C),cuidado(ID,Data,UID,PID,DG,C)).
 
 learn_CD_idUT(ID,idUT) :- cuidadoID(ID,cuidado(ID,D,X,PID,DG,C)),
-			   atom(X),nao(atom(idUT)),
+			   atom(X),integer(idUT),
 			   replace(cuidado(ID,D,X,PID,DG,C),cuidado(ID,D,idUT,PID,DG,C)).
 
 learn_CD_idPRT(ID,idPRT) :- cuidadoID(ID,cuidado(ID,D,UID,X,DG,C)),
-			   atom(X),nao(atom(idPRT)),
+			   atom(X),integer(idPRT),
 			   replace(cuidado(ID,D,UID,X,DG,C),cuidado(ID,D,UID,idPRT,DG,C)).
 
-learn_CD_data(ID,Diagnostico) :- cuidadoID(ID,cuidado(ID,D,UID,PID,X,C)),
+learn_CD_diagnostico(ID,Diagnostico) :- cuidadoID(ID,cuidado(ID,D,UID,PID,X,C)),
 			   atom(X),nao(atom(Diagnostico)),
 			   replace(cuidado(ID,D,UID,PID,X,C),cuidado(ID,D,UID,PID,Diagnostico,C)).
 
-learn_CD_data(ID,Custo) :- cuidadoID(ID,cuidado(ID,D,UID,PID,DG,X)),
-			   atom(X),nao(atom(Custo)),
+learn_CD_custo(ID,Custo) :- cuidadoID(ID,cuidado(ID,D,UID,PID,DG,X)),
+			   atom(X),integer(Custo),
 			   replace(cuidado(ID,D,UID,PID,DG,X),cuidado(ID,D,UID,PID,DG,Custo)).
 
 
+%-----------------------------------------------%
+%-> Predicado de substituição de conhecimento <-%
+%-----------------------------------------------%
+
+% replace : Old,New -> {V,F}
+replace(Old, New) :- retract(Old), learn(New).
+replace(Old, _) :- assert(Old), !, fail.

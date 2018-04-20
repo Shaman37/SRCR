@@ -24,21 +24,21 @@ removeUtente(ID) :- forget(utente(ID,_,_,_,_,_,_)).
 removePrestador(ID) :- forget(prestador(ID,_,_,_,_)).
 
 %- Remover cuidado
-removeCuidado(ID,D,UID,PID,DG,P) :- forget(cuidado(ID,D,UID,PID,DG,P)).
+removeCuidado(ID) :- forget(cuidado(ID,_,_,_,_,_)).
 
 %--------------------------------%
 % Identifica Utente por critério %
 %--------------------------------%
 
-utenteID(ID,R) :- (solutions(utente(ID,N,A,S,RUA,CDD,TEL),utente(ID,N,A,S,RUA,CDD,TEL),R)).
+utenteID(ID,R) :- (solutions(utente(ID,N,A,S,RUA,CDD,TEL),utente(ID,N,A,S,RUA,CDD,TEL),[R|_])).
 utenteName(N,R) :- (solutions(utente(ID,N,A,S,RUA,CDD,TEL),utente(ID,N,A,S,RUA,CDD,TEL),LU)), sortL(LU,R).
 utenteIdade(A,R) :- (solutions(utente(ID,N,S,RUA,CDD,TEL),utente(ID,N,A,S,RUA,CDD,TEL),LU)), sortL(LU,R).
 utenteRua(RUA,R) :- (solutions(utente(ID,N,A,S,RUA,CDD,TEL),utente(ID,N,A,S,RUA,CDD,TEL),LU)), sortL(LU,R). 
 utenteCidade(CDD,R) :- (solutions(utente(ID,N,A,S,RUA,CDD,TEL),utente(ID,N,A,S,RUA,CDD,TEL),LU)), sortL(LU,R). 
 utenteContacto(TEL,R) :- (solutions(utente(ID,N,A,S,RUA,CDD,TEL),utente(ID,N,A,S,RUA,CDD,TEL),R)). 
 
-prestadorID(ID,R) :- (solutions(prestador(ID,N,ESP,I,CDD),prestador(ID,N,ESP,I,CDD),R)).
-cuidadoID(ID,R) :- (solution(cuidado(ID,D,UID,PID,DSC,P),cuidado(ID,D,UID,PID,DSC,P),R)).
+prestadorID(ID,R) :- (solutions(prestador(ID,N,ESP,I,CDD),prestador(ID,N,ESP,I,CDD),[R|_])).
+cuidadoID(ID,R) :- (solution(cuidado(ID,D,UID,PID,DSC,P),cuidado(ID,D,UID,PID,DSC,P),[R|_])).
 
 %--------------------------------------------------------------------%
 % Identifica Instituições e Cidades prestadores de cuidados de saúde %

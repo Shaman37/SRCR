@@ -18,13 +18,13 @@ utente(14,'Rui',30,'B','Rua da Boavista',cidade_ut_14,'966306127').
 utente(15,'Tiago',17,'AB','Alameda do Lago','Braga',contacto_ut_15).
 
 % prestador: #IdPrest, Nome, Especialidade, Instituição, Cidade -> {V,F,D}
-prestador(1,'Sianna Summerley',especialidade_prt_1,'Hospital de Braga','Braga').
+prestador(1,'Sianna Summerley',especialidade_prt_01,'Hospital de Braga','Braga').
 prestador(2,'Donica Putman','Obstreticia','Trofa Saúde Hospital','Braga').
 prestador(3,'Curran Shore','Oftomalogia','Hospital de Braga','Braga').
 prestador(4,'Shauna Goodbody','Maternidade','Hospital de Santa Maria','Porto').
-prestador(5,'Madge Crossan','Cardiologia',instituicao_prt_5,'Braga').
+prestador(5,'Madge Crossan','Cardiologia',instituicao_prt_05,'Braga').
 prestador(6,'Carolyne Simonetti','Medicina Geral','Hospital de Braga','Braga').
-prestador(7,nome_ut_07,'Enfermagem','Trofa Saúde Hospital',cidade_prt_07).
+prestador(7,nome_prt_07,'Enfermagem','Trofa Saúde Hospital',cidade_prt_07).
 prestador(8,'Althea Poynor','Ginecologia','Hospital da Luz','Guimarães').
 prestador(9,'Mayer Likely','Medicina Geral','Trofa Saúde Hospital','Braga').
 prestador(10,'Krystal Karran','Medicina Geral','Hospital de Santa Maria','Porto').
@@ -35,7 +35,7 @@ prestador(14,'Mariam Nuschke','Ortopedia','Hospital de Santa Maria','Porto').
 prestador(15,'Virgil Spreull','Medicina Geral','Trofa Saúde Hospital','Braga').
 
 % cuidado: #IdCuidado, Data, #IdUt, #IdPrest, Descrição, Custo -> {V,F,D}
-cuidado(1,data_cuidado_01,12,15,'Intoxicação alimentar',61.23).
+cuidado(1, data_cuidado_01,12,15,'Intoxicação alimentar',61.23).
 cuidado(2,'2018-01-12',8,14,'Perna partida',33.97).
 cuidado(3,'2018-01-15',5,12,diagnostico_cuidado_03,32.3).
 cuidado(4,'2018-01-23',5,14,'Traumatismo craniano',35.76).

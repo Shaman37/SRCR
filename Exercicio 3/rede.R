@@ -8,7 +8,8 @@ library(arules)
 #carregar ficheiro
 dados <- read.csv(file="//home/yoda45/Desktop/SRCR/bank-additional-full1.csv", header=TRUE, sep=",")
 
-dados$pdays <-  as.numeric(discretize(dados$pdays, method = "frequency", breaks = 10))
+#not working
+#dados$pdays <-  as.numeric(discretize(dados$pdays, method = "frequency", breaks = 10))
 
 dados$pdays <- discretize(dados$pdays,method = "cluster",breaks = 5, labels=c(0.1,0.2,0.3,0.4,0.5))
 

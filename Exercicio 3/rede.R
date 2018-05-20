@@ -6,20 +6,15 @@ library(leaps)
 library(arules)
 
 #mudar diretoria para o projeto
-#setwd("/Users/josesousa/Documents/SRCR/Exercicio\ 3")
-
 setwd("/home/yoda45/Desktop/git/SRCR/Exercicio\ 3")
-
-#setwd("/Users/Asus/Desktop/SRCR/Trabalho")
 
 #carregar ficheiro
 #dados <- read.csv(file="bank.csv", header=TRUE, sep=",")
 dados <- read.csv(file="bank-additional.csv", header=TRUE, sep=";")
 
+#normalização de dados
 
-#not working
-#dados$pdays <-  as.numeric(discretize(dados$pdays, method = "frequency", breaks = 10))
-
+#age
 dados$age <- as.double(discretize(dados$age,method = "cluster",breaks = 66, labels = c(1:66)))
 
 dados$age[dados$age == 1] <- 0.0151
@@ -89,11 +84,7 @@ dados$age[dados$age == 64] <- 0.9697
 dados$age[dados$age == 65] <- 0.9848
 dados$age[dados$age == 66] <- 0.9999
 
-
-
-
-dados$job <- as.double(discretize(dados$job,method = "cluster",breaks = 12, labels = c(0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.1,1.2)))
-                       
+#job
 
 dados$job[dados$job == 1] <- 0.0833
 dados$job[dados$job == 2] <- 0.1666
@@ -108,15 +99,14 @@ dados$job[dados$job == 10] <- 0.8333
 dados$job[dados$job == 11] <- 0.9166
 dados$job[dados$job >= 12] <- 0.9999
 
-
-dados$marital <- as.double(discretize(dados$marital,method = "cluster", breaks = 3, labels = c(0.1,0.2,0.3)))
+#marital
 
 dados$martial[dados$marital == 1] <- 0.25
 dados$marital[dados$marital == 2] <- 0.50
 dados$marital[dados$marital == 3] <- 0.75
 
 
-dados$education <- as.double(discretize(dados$education,method = "cluster", breaks = 8, labels = c(0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8)))
+#education
 
 dados$education[dados$education == 1] <- 0.125
 dados$education[dados$education == 2] <- 0.250
@@ -127,23 +117,25 @@ dados$education[dados$education == 6] <- 0.750
 dados$education[dados$education == 7] <- 0.875
 dados$education[dados$education == 8] <- 1
 
+#default
 
-dados$default <- as.double(discretize(dados$default,method="cluster",breaks =2, labels = c(0.1,0.2)))
-
-dados$default[dados$default == 1] <- 0.5
-dados$default[dados$default == 2] <- 1
-
-
-dados$housing <- as.double(discretize(dados$housing,method="cluster",breaks =2, labels = c(0.1,0.2)))
-
-dados$housing[dados$housing == 1] <- 0.5
-dados$housing[dados$housing == 2] <- 1
+dados$default[dados$default == 1] <- 0.3333
+dados$default[dados$default == 2] <- 0.6666
+dados$default[dados$default == 3] <- 0.9999
 
 
-dados$loan <- as.double(discretize(dados$loan,method="cluster",breaks =2, labels = c(0.1,0.2)))
+#housing
 
-dados$loan[dados$loan == 1] <- 0.5
-dados$loan[dados$loan == 2] <- 1
+dados$housing[dados$housing == 1] <- 0.3333
+dados$housing[dados$housing == 2] <- 0.6666
+dados$housing[dados$housing == 3] <- 0.9999
+
+
+#loan
+
+dados$loan[dados$loan == 1] <- 0.3333
+dados$loan[dados$loan == 2] <- 0.6666
+dados$loan[dados$loan == 3] <- 0.9999
 
 
 dados$campaign <- as.double(discretize(dados$campaign,method="cluster",breaks =25, labels = c(1:25)))
@@ -215,19 +207,18 @@ dados$poutcome[dados$poutcome == 1] <- 0.33333
 dados$poutcome[dados$poutcome == 2] <- 0.66666
 dados$poutcome[dados$poutcome == 3] <- 0.99999
 
-dados$emp.var.rate<- as.double(discretize(dados$emp.var.rate,method = "cluster",breaks = 9, labels=c(-7,-6,-5,-4,-3,-2,-1,1,2)))
+dados$emp.var.rate<- as.double(discretize(dados$emp.var.rate,method = "cluster",breaks = 9, labels=c(1:9)))
 
 
-
-dados$emp.var.rate[dados$emp.var.rate == -7] <- -1.0000
-dados$emp.var.rate[dados$emp.var.rate == -6] <- -0.8571
-dados$emp.var.rate[dados$emp.var.rate == -5] <- -0.7143
-dados$emp.var.rate[dados$emp.var.rate == -4] <- -0.5714
-dados$emp.var.rate[dados$emp.var.rate == -3] <- -0.4286
-dados$emp.var.rate[dados$emp.var.rate == -2] <- -0.2857
-dados$emp.var.rate[dados$emp.var.rate == -1] <- -0.1428
-dados$emp.var.rate[dados$emp.var.rate == 1] <- 0.5000
-dados$emp.var.rate[dados$emp.var.rate == 2] <- 1.0000
+dados$emp.var.rate[dados$emp.var.rate == 1] <- -1.0000
+dados$emp.var.rate[dados$emp.var.rate == 2] <- -0.8571
+dados$emp.var.rate[dados$emp.var.rate == 3] <- -0.7143
+dados$emp.var.rate[dados$emp.var.rate == 4] <- -0.5714
+dados$emp.var.rate[dados$emp.var.rate == 5] <- -0.4286
+dados$emp.var.rate[dados$emp.var.rate == 6] <- -0.2857
+dados$emp.var.rate[dados$emp.var.rate == 7] <- -0.1428
+dados$emp.var.rate[dados$emp.var.rate == 8] <- 0.5000
+dados$emp.var.rate[dados$emp.var.rate == 9] <- 1.0000
 
 
 dados$cons.price.idx <- as.double(discretize(dados$cons.price.idx,method = "cluster",breaks = 26, labels=c(1:26)))
@@ -259,161 +250,207 @@ dados$cons.price.idx[dados$cons.price.idx == 24] <- 0.9231
 dados$cons.price.idx[dados$cons.price.idx == 25] <- 0.9615
 dados$cons.price.idx[dados$cons.price.idx == 26] <- 1.0000
 
-dados$cons.conf.idx <- as.double(discretize(dados$cons.conf.idx,method = "cluster",breaks = 26, labels=c(-26:-1)))
+dados$cons.conf.idx <- as.double(discretize(dados$cons.conf.idx,method = "cluster",breaks = 26, labels=c(1:26)))
 
-dados$cons.conf.idx[dados$cons.conf.idx == -1] <- -0.0385
-dados$cons.conf.idx[dados$cons.conf.idx == -2] <- -0.0769
-dados$cons.conf.idx[dados$cons.conf.idx == -3] <- -0.1154
-dados$cons.conf.idx[dados$cons.conf.idx == -4] <- -0.1538
-dados$cons.conf.idx[dados$cons.conf.idx == -5] <- -0.1923
-dados$cons.conf.idx[dados$cons.conf.idx == -6] <- -0.2308
-dados$cons.conf.idx[dados$cons.conf.idx == -7] <- -0.2692
-dados$cons.conf.idx[dados$cons.conf.idx == -8] <- -0.3077
-dados$cons.conf.idx[dados$cons.conf.idx == -9] <- -0.3461
-dados$cons.conf.idx[dados$cons.conf.idx == -10] <- -0.3846
-dados$cons.conf.idx[dados$cons.conf.idx == -11] <- -0.4231
-dados$cons.conf.idx[dados$cons.conf.idx == -12] <- -0.4615
-dados$cons.conf.idx[dados$cons.conf.idx == -13] <- -0.5000
-dados$cons.conf.idx[dados$cons.conf.idx == -14] <- -0.5385
-dados$cons.conf.idx[dados$cons.conf.idx == -15] <- -0.5769
-dados$cons.conf.idx[dados$cons.conf.idx == -16] <- -0.6154
-dados$cons.conf.idx[dados$cons.conf.idx == -17] <- -0.6538
-dados$cons.conf.idx[dados$cons.conf.idx == -18] <- -0.6923
-dados$cons.conf.idx[dados$cons.conf.idx == -19] <- -0.7308
-dados$cons.conf.idx[dados$cons.conf.idx == -20] <- -0.7692
-dados$cons.conf.idx[dados$cons.conf.idx == -21] <- -0.8077
-dados$cons.conf.idx[dados$cons.conf.idx == -22] <- -0.8462
-dados$cons.conf.idx[dados$cons.conf.idx == -23] <- -0.8846
-dados$cons.conf.idx[dados$cons.conf.idx == -24] <- -0.9231
-dados$cons.conf.idx[dados$cons.conf.idx == -25] <- -0.9615
-dados$cons.conf.idx[dados$cons.conf.idx == -26] <- -1.0000
+dados$cons.conf.idx[dados$cons.conf.idx == 1] <- -0.0385
+dados$cons.conf.idx[dados$cons.conf.idx == 2] <- -0.0769
+dados$cons.conf.idx[dados$cons.conf.idx == 3] <- -0.1154
+dados$cons.conf.idx[dados$cons.conf.idx == 4] <- -0.1538
+dados$cons.conf.idx[dados$cons.conf.idx == 5] <- -0.1923
+dados$cons.conf.idx[dados$cons.conf.idx == 6] <- -0.2308
+dados$cons.conf.idx[dados$cons.conf.idx == 7] <- -0.2692
+dados$cons.conf.idx[dados$cons.conf.idx == 8] <- -0.3077
+dados$cons.conf.idx[dados$cons.conf.idx == 9] <- -0.3461
+dados$cons.conf.idx[dados$cons.conf.idx == 10] <- -0.3846
+dados$cons.conf.idx[dados$cons.conf.idx == 11] <- -0.4231
+dados$cons.conf.idx[dados$cons.conf.idx == 12] <- -0.4615
+dados$cons.conf.idx[dados$cons.conf.idx == 13] <- -0.5000
+dados$cons.conf.idx[dados$cons.conf.idx == 14] <- -0.5385
+dados$cons.conf.idx[dados$cons.conf.idx == 15] <- -0.5769
+dados$cons.conf.idx[dados$cons.conf.idx == 16] <- -0.6154
+dados$cons.conf.idx[dados$cons.conf.idx == 17] <- -0.6538
+dados$cons.conf.idx[dados$cons.conf.idx == 18] <- -0.6923
+dados$cons.conf.idx[dados$cons.conf.idx == 19] <- -0.7308
+dados$cons.conf.idx[dados$cons.conf.idx == 20] <- -0.7692
+dados$cons.conf.idx[dados$cons.conf.idx == 21] <- -0.8077
+dados$cons.conf.idx[dados$cons.conf.idx == 22] <- -0.8462
+dados$cons.conf.idx[dados$cons.conf.idx == 23] <- -0.8846
+dados$cons.conf.idx[dados$cons.conf.idx == 24] <- -0.9231
+dados$cons.conf.idx[dados$cons.conf.idx == 25] <- -0.9615
+dados$cons.conf.idx[dados$cons.conf.idx == 26] <- -1.0000
 
-#dados$euribor3m <- as.double(discretize(dados$euribor3m,method = "cluster",breaks = 5, labels=c(0.1,0.2,0.3,0.4,0.5)))
+hist(dados$age, 
+     main="Histogram for Clients Age", 
+     xlab="Age", 
+     border="black", 
+     col="orange")
 
-#dados$euribor3m[dados$cons.conf.idx == 1] <- 0.1
+hist(dados$job, 
+     main="Histogram for Clients Job", 
+     xlab="Job", 
+     border="black", 
+     col="orange")
 
+hist(dados$marital, 
+     main="Histogram for Clients Marital Status", 
+     xlab="Marital Status", 
+     border="black", 
+     col="orange")
 
+hist(dados$education, 
+     main="Histogram for Clients Education", 
+     xlab="Education", 
+     border="black", 
+     col="orange")
 
-#View(dados$pdays)
+hist(dados$default, 
+     main="Histogram for Default Deposit", 
+     xlab="Deposit", 
+     border="black", 
+     col="orange")
 
+hist(dados$housing, 
+     main="Histogram for Housing Loan", 
+     xlab="Housing", 
+     border="black", 
+     col="orange")
 
+hist(dados$loan, 
+     main="Histogram for Personal Loan", 
+     xlab="Loan", 
+     border="black", 
+     col="orange")
 
+hist(dados$campaign, 
+     main="Histogram for Campaign", 
+     xlab="Campaign", 
+     border="black", 
+     col="orange")
+
+hist(dados$pdays, 
+     main="Histogram for Passed Days", 
+     xlab="Pdays", 
+     border="black", 
+     col="orange")
+
+hist(dados$previous, 
+     main="Histogram for Previous Contact", 
+     xlab="Previous", 
+     border="black", 
+     col="orange")
+
+hist(dados$poutcome, 
+     main="Histogram for Previous Outcome", 
+     xlab="Poutcome", 
+     border="black", 
+     col="orange")
+
+hist(dados$emp.var.rate, 
+     main="Histogram for Emp.Var.Rate", 
+     xlab="Emp.Var.Rate", 
+     border="black", 
+     col="orange")
+
+hist(dados$cons.price.idx, 
+     main="Histogram for Cons.Price.Idx", 
+     xlab="Cons.Price.Idx", 
+     border="black", 
+     col="orange")
+
+hist(dados$cons.conf.idx, 
+     main="Histogram for Cons.Conf.Idx", 
+     xlab="Cons.Conf.Idx", 
+     border="black", 
+     col="orange")
+
+hist(dados$euribor3m, 
+     main="Histogram for Euribor3M", 
+     xlab="Euribor3M", 
+     border="black", 
+     col="orange")
 
 
 #dividir dados em treino e teste
 treino <- (dados[1:3000,])
 teste <- (dados[3001:4119,])
 
-#defini????o das camadas de entrada e sa??da da RNA
-funcao <- y ~ age+job+marital+education+default+housing+loan+campaign+pdays+previous+poutcome+emp.var.rate+cons.price.idx+cons.conf.idx
+#descobrir a importância de cada atributo
+formula <- y ~ age+job+marital+education+default+housing+loan+campaign+pdays+previous+poutcome+emp.var.rate+cons.price.idx+cons.conf.idx+euribor3m
 
-#form1 <- y ~ pdays + cons.conf.idx + euribor3m + cons.price.idx + emp.var.rate + poutcome 
+selection <- regsubsets(formula,dados,nvmax=15)
 
-form2 <- y ~ job + marital + education + default + housing + loan + pdays + previous
+summary(selection)
 
-#sel <- regsubsets(form3,dados,nvmax=16)
-#summary(sel)
+formula2 <- y ~ pdays+cons.conf.idx+euribor3m
 
-rede <- neuralnet(funcao, treino,hidden= c(4), lifesign = "full", linear.output = FALSE, threshold = 0.01)
+formula3 <- y ~ pdays+previous+poutcome+cons.price.idx+cons.conf.idx+euribor3m
 
-teste3 <-subset(teste,select=c("age","job","marital","education","default","housing", "loan","campaign","pdays","previous","poutcome","emp.var.rate","cons.price.idx","cons.conf.idx"))
+formula4 <- y ~ age+education+campaign+pdays+previous+poutcome+cons.price.idx+cons.conf.idx+euribor3m
 
-rede.resultados <- compute(rede,teste3)
+formula5 <- y ~ age+marital+education+default+campaign+pdays+previous+poutcome+emp.var.rate+cons.price.idx+cons.conf.idx+euribor3m
 
-resultadosRede <- data.frame(atual=teste$y,
-                             previsao=rede.resultados$net.result)
+#treino da rede neuronal 
+#com diferentes algoritmos
+#e diferentes thresholds
 
+rede <- neuralnet(formula, treino,hidden= c(4), lifesign = "full", linear.output = FALSE, threshold = 0.02)
+rede <- neuralnet(formula, treino,hidden= c(4), lifesign = "full", linear.output = FALSE, threshold = 0.02,algorithm = "slr")
+rede <- neuralnet(formula, treino,hidden= c(4), lifesign = "full", linear.output = FALSE, threshold = 0.02,algorithm = "rprop+")
+
+rede2 <- neuralnet(formula2, treino,hidden= c(4,2), lifesign = "full", linear.output = FALSE, threshold = 0.02)
+rede2 <- neuralnet(formula2, treino,hidden= c(4), lifesign = "full", linear.output = FALSE, threshold = 0.02,algorithm = "slr")
+rede2 <- neuralnet(formula2, treino,hidden= c(4,2), lifesign = "full", linear.output = FALSE, threshold = 0.02,algorithm = "rprop+")
+
+
+rede3 <- neuralnet(formula3, treino,hidden= c(4), lifesign = "full", linear.output = FALSE, threshold = 0.02)
+rede3 <- neuralnet(formula3, treino,hidden= c(4,2), lifesign = "full", linear.output = FALSE, threshold = 0.02,algorithm = "slr")
+rede3 <- neuralnet(formula3, treino,hidden= c(4), lifesign = "full", linear.output = FALSE, threshold = 0.02,algorithm = "rprop+")
+
+
+rede4 <- neuralnet(formula4, treino,hidden= c(4), lifesign = "full", linear.output = FALSE, threshold = 0.02)
+rede4 <- neuralnet(formula4, treino,hidden= c(8), lifesign = "full", linear.output = FALSE, threshold = 0.02,algorithm = "slr")
+rede4 <- neuralnet(formula4, treino,hidden= c(4,2), lifesign = "full", linear.output = FALSE, threshold = 0.02,algorithm = "rprop+")
+
+rede5 <- neuralnet(formula5, treino,hidden= c(4), lifesign = "full", linear.output = FALSE, threshold = 0.02)
+rede5 <- neuralnet(formula5, treino,hidden= c(4), lifesign = "full", linear.output = FALSE, threshold = 0.02,algorithm = "slr")
+rede5 <- neuralnet(formula5, treino,hidden= c(8,4), lifesign = "full", linear.output = FALSE, threshold = 0.02,algorithm = "rprop+")
+
+
+#desenhar a rede neuronal
+plot(rede,rep="best")
+plot(rede2,rep="best")
+plot(rede3,rep="best")
+plot(rede4,rep="best")
+plot(rede5,rep="best")
+
+#definir os subsets
+
+set <- subset(teste,select=c("age","job","marital","education","default","housing","loan","campaign","pdays","previous","poutcome","emp.var.rate","cons.price.idx","cons.conf.idx","euribor3m"))
+set2 <- subset(teste,select=c("pdays","cons.conf.idx","euribor3m"))
+set3 <- subset(teste,select=c("pdays","previous","poutcome","cons.price.idx","cons.conf.idx","euribor3m"))
+set4 <- subset(teste,select=c("age","education","campaign","pdays","previous","poutcome","cons.price.idx","cons.conf.idx","euribor3m"))
+set5 <- subset(teste,select=c("age","marital","education","default","campaign","pdays","previous","poutcome","emp.var.rate","cons.price.idx","cons.conf.idx","euribor3m"))
+
+#testar rede com novos casos
+rede.resultados <- compute(rede,set)
+rede2.resultados <- compute(rede2,set2)
+rede3.resultados <- compute(rede3,set3)
+rede4.resultados <- compute(rede4,set4)
+rede5.resultados <- compute(rede5,set5)
+
+#imprimir resultados
+
+resultadosRede <- data.frame(atual=teste$y,previsao=rede.resultados$net.result)
+resultadosRede2 <- data.frame(atual=teste$y,previsao=rede2.resultados$net.result)
+resultadosRede3 <- data.frame(atual=teste$y,previsao=rede3.resultados$net.result)
+resultadosRede4 <- data.frame(atual=teste$y,previsao=rede4.resultados$net.result)
+resultadosRede5 <- data.frame(atual=teste$y,previsao=rede5.resultados$net.result)
+
+#calcular o rmse
 rmse(c(teste$y),c(resultadosRede$previsao))
-
-plot(rede)
-
-
-rede2 <- neuralnet(form2, treino,hidden= c(4,2), lifesign = "full", linear.output = FALSE, threshold = 0.01)
-
-teste3 <-subset(teste,select=c("job","marital","education","default","housing", "loan","pdays","previous"))
-
-rede2.resultados <- compute(rede2,teste3)
-
-resultadosRede <- data.frame(atual=teste$y,
-                             previsao=rede2.resultados$net.result)
-
-rmse(c(teste$y),c(resultadosRede$previsao))
-
-plot(rede2)
-
-#PAROU AQUI
-###################
+rmse(c(teste$y),c(resultadosRede2$previsao))
+rmse(c(teste$y),c(resultadosRede3$previsao))
+rmse(c(teste$y),c(resultadosRede4$previsao))
+rmse(c(teste$y),c(resultadosRede5$previsao))
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-rede <- neuralnet(form1, treino, hidden = c(4), lifesign = "full",linear.output = FALSE, threshold = 0.1)
-
-
-#random
-#m??dia entre neur??nios de entrada e sa??da
-ex <- neuralnet(funcao, treino, hidden = c(4,2), lifesign = "full",linear.output = FALSE, threshold = 0.1)
-
-
-rede2 <- neuralnet(form2, treino, hidden = c(4,2), lifesign = "full",linear.output = FALSE, threshold = 0.1, algorithm = "slr")
-
-rede3 <- neuralnet(form2, treino, hidden = c(4,2), lifesign = "full",linear.output = FALSE, threshold = 0.1, algorithm = "sag")
-
-rede4 <- neuralnet(form2, treino, hidden = c(4,2), lifesign = "full",linear.output = FALSE, threshold = 0.1, algorithm = "backprop",learningrate = 0.0001)
-
-rede5 <- neuralnet(form2, treino, hidden = c(4,2), lifesign = "full",linear.output = FALSE, threshold = 0.1, algorithm = "rprop-")
-
-#mostra a rede
-
-#subset para teste 
-
-teste3 <-subset(teste,select=c("job","education","default","pdays","previous"))
-                                 
-                                 
-teste1 <-subset(teste,select=c("age","job","marital","education","default","housing","loan","campaign","pdays","previous","poutcome","emp.var.rate","cons.price.idx","cons.conf.idx","euribor3m"))
-
-teste2 <-subset(teste,select=c("pdays","cons.conf.idx","euribor3m","cons.price.idx","emp.var.rate","poutcome"))
-
-#teste3 <- subset(teste,select=c("pdays","cons.conf.idx","euribor3m","cons.price.idx","emp.var.rate","poutcome"))
-
-rede.resultados <- compute(rede,teste3)
-
-
-
-#ex.resultados <- compute(ex,teste1)
-
-#rede2.resultados <- compute(rede2,teste3)
-
-
-#resultadosEx <- data.frame(atual=teste$y,
-                         #previsao=ex.resultados$net.result)
-
-
-resultadosRede <- data.frame(atual=teste$y,
-                           previsao=rede.resultados$net.result)
-
-#resultadosRede2 <- data.frame(atual=teste$y,
- #                            previsao=rede2.resultados$net.result)
-
-#calcular o RMSE(Root Mean Square Error)
-
-rmse(c(teste$y),c(resultadosRede$previsao))
-
-#rmse(c(teste$y),c(resultadosEx$previsao))
-#rmse(c(teste$y),c(resultadosRede2$previsao))
